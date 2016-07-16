@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Loader\ILoader.cs" />
+    <Compile Include="Service\LoggerDecorator.cs" />
     <Compile Include="Service\IUserService.cs" />
     <Compile Include="Loader\Loader.cs" />
     <Compile Include="Service\ServiceState.cs" />

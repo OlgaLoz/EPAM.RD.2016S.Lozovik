@@ -9,6 +9,7 @@ namespace Storage.Strategy
     {
         public Slave(Master master)
         {
+            this.Users = new List<User>();
             master.AddUser += UpdateAfterAdd;
             master.DeleteUser += UpdateAfterDelete;
         }

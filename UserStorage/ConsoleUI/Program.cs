@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using FibbonacciGenerator;
+using Storage;
 using Storage.Loader;
 using Storage.Service;
 using Storage.Strategy;
@@ -12,10 +14,12 @@ namespace ConsoleUI
     {
         static void Main(string[] args)
         {
-            var storage = new UserService(new Master(new List<Func<User, bool>>()), new Loader(), new Fibbonacci());
-            storage.Load();
+
+          var storage = new LoggerDecorator(new UserService
+                (new Master(new List<Func<User, bool>>()), new Loader(), new Fibbonacci()));
+           // storage.Load();
             storage.Add(new User {FirstName = "qwerty"});
-            storage.Save();
+            //storage.Save();
             Console.ReadLine();
         }
     }

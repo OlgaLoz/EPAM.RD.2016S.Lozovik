@@ -22,7 +22,9 @@ namespace Storage.UserInfo
             {
                 return false;
             }
-            return FirstName == other.FirstName && LastName == other.LastName;
+            return PersonalId == other.PersonalId && 
+                FirstName == other.FirstName && 
+                LastName == other.LastName;
         }
 
         public override bool Equals(object obj)

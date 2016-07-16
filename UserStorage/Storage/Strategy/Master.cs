@@ -11,6 +11,7 @@ namespace Storage.Strategy
 
         public Master(IEnumerable<Func<User, bool>> validators)
         {
+            this.Users = new List<User>();
             this.validators = validators;
             if (validators == null)
             {
