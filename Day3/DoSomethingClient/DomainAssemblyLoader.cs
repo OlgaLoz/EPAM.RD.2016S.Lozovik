@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using MyInterfaces;
 
@@ -19,10 +20,19 @@ namespace DoSomethingClient
             var types = assembly.GetTypes();
 
             // TODO: Find first type that has DoSomething attribute and implements IDoSomething.
-            // TODO: Create an instance of this type.
+            var type =
+                types.FirstOrDefault(
+                    t => t.GetCustomAttributes<DoSomethingAttribute>() != null && t.GetInterface("IDoSomething") != null);
 
-            IDoSomething doSomethingService = null; // TODO Save instance to variable.
-            return doSomethingService.DoSomething(data);
+            // TODO: Create an instance of this type.
+            IDoSomething doSomethingService = null;
+            if (type != null)
+            {
+                // TODO Save instance to variable.
+                doSomethingService = (IDoSomething) Activator.CreateInstance(type);
+            }
+             
+            return doSomethingService?.DoSomething(data);
         }
 
         // Usage:
@@ -36,25 +46,46 @@ namespace DoSomethingClient
             var assembly = Assembly.LoadFile(path);
             var types = assembly.GetTypes();
 
-            Type type = null; // TODO: Find first type that has DoSomething attribute and don't implement IDoSomething.
-            // TODO: MethodInfo mi = type.GetMethod("DoSomething");
-            Result result = null;
-            // TODO: result = mi.Invoke();
+            // TODO: Find first type that has DoSomething attribute and don't implement IDoSomething.
+            var type =
+                types.FirstOrDefault(
+                    t => t.GetCustomAttributes<DoSomethingAttribute>() != null && t.GetInterface("IDoSomething") == null);
 
-            return result;
+            // TODO: MethodInfo mi = type.GetMethod("DoSomething");
+            MethodInfo mi = type?.GetMethod("DoSomething");
+
+            if (type != null)
+            {
+                var doSomethingService = Activator.CreateInstance(type);
+
+                // TODO: result = mi.Invoke();
+                Result result = (Result)mi?.Invoke(doSomethingService, new object[]{data});
+
+                return result;
+            }
+            return null;
         }
 
         // More details: http://stackoverflow.com/questions/1477843/difference-between-loadfile-and-loadfrom-with-net-assemblies
         public Result LoadFrom(string fileName, Input data)
         {
             var assembly = Assembly.LoadFrom(fileName);
-            var type = assembly.GetTypes();
+            var types = assembly.GetTypes();
 
             // TODO: Find first type that has DoSomething attribute and implements IDoSomething.
-            // TODO: Create an instance of this type.
+            var type =
+                 types.FirstOrDefault(
+                 t => t.GetCustomAttributes<DoSomethingAttribute>() != null && t.GetInterface("IDoSomething") != null);
 
-            IDoSomething doSomethingService = null; // TODO Save instance to variable.
-            return doSomethingService.DoSomething(data);
+            // TODO: Create an instance of this type.
+            IDoSomething doSomethingService = null;
+            if (type != null)
+            {
+                // TODO Save instance to variable.
+                doSomethingService = (IDoSomething)Activator.CreateInstance(type);
+            }
+
+            return doSomethingService?.DoSomething(data);
         }
     }
 }
