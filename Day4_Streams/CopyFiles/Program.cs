@@ -1,30 +1,29 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace FileStreams
+namespace CopyFiles
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            /*   if (args.Length < 2)
-               {
-                   Console.WriteLine("Arguments: <source> <destination>");
-                   Console.ReadLine();
-                   return;
-               }
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Arguments: <source> <destination>");
+                Console.ReadLine();
+                return;
+            }
 
-               string source = args[0];
-               string destin = args[1];*/
+            string source = args[0];
+            string destin = args[1];
 
-            //  ByteCopy(source, destin);
-            //  BlockCopy("TextFile.txt", "out.txt");
-            //  LineCopy("TextFile.txt", "out.txt");
-             //  MemoryBufferCopy("TextFile.txt", "out.txt");
-                WebClient();
+            ByteCopy(source, destin);
+            BlockCopy(source, destin);
+            LineCopy(source, destin);
+            MemoryBufferCopy(source, destin);
+            WebClient();
             Console.ReadLine();
         }
 
@@ -73,8 +72,7 @@ namespace FileStreams
         {
             int linesCount = 0;
 
-            // TODO: implement copying lines using StreamReader/StreamWriter.
-            
+            // TODO: implement copying lines using StreamReader/StreamWriter.            
             using (var sourceStream = new FileStream(source, FileMode.Open, FileAccess.Read))
             using (var destinStream = new FileStream(destin, FileMode.OpenOrCreate, FileAccess.Write))
             {

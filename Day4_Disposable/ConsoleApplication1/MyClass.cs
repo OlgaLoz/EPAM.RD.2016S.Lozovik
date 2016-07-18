@@ -40,7 +40,6 @@ namespace ConsoleApplication1
                 // managed 
                 resource?.Close();
             }
-
             // unmanaged 
             Helper.DeallocateBuffer(buffer);
             disposed = true;
