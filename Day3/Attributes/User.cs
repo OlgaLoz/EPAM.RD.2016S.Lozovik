@@ -34,5 +34,28 @@ namespace Attributes
         {
             _id = id;
         }
+
+        public override bool Equals(object obj)
+        {
+            var user = obj as User;
+            if (user == null)
+            {
+                return false;
+            }
+
+            return user.FirstName == FirstName
+                   && user.LastName == LastName
+                   && user.Id == Id;
+
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = Id.GetHashCode();
+            hash ^= FirstName?.GetHashCode() ?? 0;
+            hash ^= LastName?.GetHashCode() ?? 0;
+
+            return hash;
+        }
     }
 }

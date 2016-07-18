@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Xml;
 
 namespace Attributes
 {
     public class Creator
     {
-        public IEnumerable<User> CreateUsers()
+        public List<User> CreateUsers()
         {
             var users = new List<User>();
             var attributes = typeof(User).GetCustomAttributes<InstantiateUserAttribute>();
@@ -20,13 +19,21 @@ namespace Attributes
                 {
                     attribute.Id = MatchParametr(typeof(User), "id");
                 }
-                users.Add(new User(attribute.Id.Value) {FirstName = attribute.FirstName, LastName = attribute.LastName});
+
+                var constructorInfo = typeof(User).GetConstructor(new[] {typeof(int)});
+                if (constructorInfo != null)
+                {
+                    var user = (User)constructorInfo.Invoke(new object[] {attribute.Id.Value});
+                    user.FirstName = attribute.FirstName;
+                    user.LastName = attribute.LastName;
+                    users.Add(user);
+                }
             }
 
             return users;
         }
 
-        public IEnumerable<AdvancedUser> CreateAdvanceUsers()
+        public List<AdvancedUser> CreateAdvanceUsers()
         {
             var users = new List<AdvancedUser>();
 
@@ -43,7 +50,15 @@ namespace Attributes
                 {
                     attribute.ExternalId = MatchParametr(typeof(AdvancedUser), "externalId");
                 }
-                users.Add(new AdvancedUser(attribute.Id.Value, attribute.ExternalId.Value) { FirstName = attribute.FirstName, LastName = attribute.LastName });
+
+                var constructorInfo = typeof(AdvancedUser).GetConstructor(new[] { typeof(int), typeof(int) });
+                if (constructorInfo != null)
+                {
+                    var user = (AdvancedUser)constructorInfo.Invoke(new object[] { attribute.Id.Value, attribute.ExternalId.Value });
+                    user.FirstName = attribute.FirstName;
+                    user.LastName = attribute.LastName;
+                    users.Add(user);
+                }
             }
 
             return users;
