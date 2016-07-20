@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Storage.UserInfo;
+using Storage.Entities.UserInfo;
 
-namespace Storage.Service
+
+namespace Storage.Interfaces
 {
     public interface IUserService
     {
+        List<User> Users { get; set; }
         int Add(User user);
         IEnumerable<int> Search(Predicate<User>[] criteria);
         void Delete(int id);

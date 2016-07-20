@@ -7,8 +7,6 @@ using FibbonacciGenerator;
 using Storage;
 using Storage.Loader;
 using Storage.Service;
-using Storage.Strategy;
-using Storage.UserInfo;
 
 namespace ConsoleUI
 {
@@ -18,7 +16,7 @@ namespace ConsoleUI
         {
 
             //var storage = new LoggerDecorator(new UserService
-            //      (new Master(new List<Func<User, bool>>()), new Loader(), new Fibbonacci()));
+            //      (new Master(new List<Func<User, bool>>()), new Repository(), new Fibbonacci()));
             // // storage.Load();
             //  storage.Add(new User {FirstName = "qwerty"});
             //storage.Save();

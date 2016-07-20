@@ -1,7 +1,8 @@
 ﻿using System;
 
-namespace Storage.UserInfo
+namespace Storage.Entities.UserInfo
 {
+    [Serializable]
     public struct Visa
     {
         public string Country { get; set; }

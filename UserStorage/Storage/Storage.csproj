@@ -41,21 +41,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Loader\ILoader.cs" />
-    <Compile Include="Service\LoggerDecorator.cs" />
-    <Compile Include="Service\IUserService.cs" />
-    <Compile Include="Loader\Loader.cs" />
-    <Compile Include="Service\ServiceState.cs" />
+    <Compile Include="Interfaces\IMaster.cs" />
+    <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Service\UserService.cs" />
-    <Compile Include="Strategy\IStrategy.cs" />
-    <Compile Include="Strategy\Master.cs" />
-    <Compile Include="Strategy\Slave.cs" />
-    <Compile Include="Strategy\Strategy.cs" />
-    <Compile Include="Strategy\UserEventArgs.cs" />
-    <Compile Include="UserInfo\Gender.cs" />
-    <Compile Include="UserInfo\User.cs" />
+    <Compile Include="Interfaces\IUserService.cs" />
+    <Compile Include="Repository\Repository.cs" />
+    <Compile Include="Entities\ServiceState\ServiceState.cs" />
+    <Compile Include="Service\Master.cs" />
+    <Compile Include="Service\Slave.cs" />
+    <Compile Include="Entities\UserEventArgs\UserEventArgs.cs" />
+    <Compile Include="Entities\UserInfo\Gender.cs" />
+    <Compile Include="Entities\UserInfo\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserInfo\Visa.cs" />
+    <Compile Include="Entities\UserInfo\Visa.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FibbonacciGenerator\FibbonacciGenerator.csproj">
+      <Project>{52d8e67d-0f1f-4bee-9d79-2792fab95811}</Project>
+      <Name>FibbonacciGenerator</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

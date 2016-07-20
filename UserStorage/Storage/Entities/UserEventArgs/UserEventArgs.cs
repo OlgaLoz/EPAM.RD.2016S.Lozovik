@@ -1,7 +1,7 @@
 ﻿using System;
-using Storage.UserInfo;
+using Storage.Entities.UserInfo;
 
-namespace Storage.Strategy
+namespace Storage.Entities.UserEventArgs
 {
     public sealed class UserEventArgs : EventArgs
     {

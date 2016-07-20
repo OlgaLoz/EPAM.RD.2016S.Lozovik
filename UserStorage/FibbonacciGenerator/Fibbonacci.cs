@@ -1,34 +1,77 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using FibbonacciGenerator.Interface;
 
 namespace FibbonacciGenerator
 {
-    public class Fibbonacci : IEnumerator<int>
+    public class FibonacciGenerator : IGenerator
     {
-        private int prevNumber;
-        private int number = 1;
-
-        public int Current => number;
-
-        object IEnumerator.Current => Current;
-
-        public bool MoveNext()
+        private class Fibbonacci : IEnumerator<int>
         {
-            int tempNumber = number;
-            number += prevNumber;
-            prevNumber = tempNumber;
-            return true;
+            private int prevNumber;
+            private int number = 1;
+
+            public int Current => number;
+
+            object IEnumerator.Current => Current;
+
+            public bool MoveNext()
+            {
+                try
+                {
+                    checked
+                    {
+                        int tempNumber = number;
+                        number += prevNumber;
+                        prevNumber = tempNumber;
+                    }
+
+                }
+                catch (OverflowException)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            public void Reset()
+            {
+                prevNumber = 0;
+                number = 1;
+            }
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        public void Reset()
+        private readonly IEnumerator<int> fibonacciIterator;
+
+        public int CurrentId => fibonacciIterator.Current;
+        
+        public FibonacciGenerator()
         {
-            prevNumber = 0;
-            number = 1;
+            fibonacciIterator = new Fibbonacci();
         }
 
-        public void Dispose()
+        public void LoadState(int currentState)
         {
-            throw new System.NotImplementedException();
+            while (fibonacciIterator.Current < currentState)
+            {
+                fibonacciIterator.MoveNext();
+            }
+        }
+
+        public int GetNextId()
+        {
+            if (fibonacciIterator.MoveNext())
+            {
+                return fibonacciIterator.Current;
+            }
+            throw new InvalidOperationException("No more id.");           
         }
     }
 }

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using Configurator.ReplicationInfo;
 using FibbonacciGenerator;
+using Storage.Entities.UserInfo;
+using Storage.Interfaces;
 using Storage.Loader;
 using Storage.Service;
-using Storage.Strategy;
-using Storage.UserInfo;
 
 namespace Configurator
 {
@@ -29,24 +29,21 @@ namespace Configurator
                 throw new ConfigurationErrorsException("Count of masters must be one.");
             }
             
-            Master master = new Master(new List<Func<User, bool>>());
-            masterService = new UserService(master, new Loader(), new Fibbonacci());
-            ((UserService)masterService).Load();
+            masterService = new Master(new List<Func<User, bool>>(), new Repository(), new FibonacciGenerator());
+            ((IMaster)masterService).Load();
 
             slaveServices = new List<IUserService>();
 
             for (int i = 0; i < servicesSection.Slave.Count; i++)
             {
-                Slave slave = new Slave(master);
-                IUserService slaveService = new UserService(slave, new Loader(), null);
-                ((UserService)slaveService).Load();
+                IUserService slaveService = new Slave((IMaster)masterService);
                 slaveServices.Add(slaveService);
             }
         }
 
         public void End()
         {
-            ((UserService)masterService).Save();
+            ((IMaster)masterService).Save();
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
 
-namespace Storage.UserInfo
+namespace Storage.Entities.UserInfo
 {
-    public class User : IEquatable<User>, ICloneable
+    [Serializable]
+    public class User : IEquatable<User>//, ICloneable
     {
         public int PersonalId { get; set; }
 
@@ -47,7 +48,8 @@ namespace Storage.UserInfo
 
             return hash;
         }
-        public object Clone()
+
+      /*  public object Clone()
         {
             return new User
             {
@@ -58,6 +60,6 @@ namespace Storage.UserInfo
                 LastName = LastName,
                 Visas = (Visa[])Visas.Clone()
             };
-        }
+        }*/
     }
 }

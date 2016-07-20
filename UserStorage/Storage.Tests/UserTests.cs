@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Storage.UserInfo;
+using Storage.Entities.UserInfo;
 
 namespace Storage.Tests
 {

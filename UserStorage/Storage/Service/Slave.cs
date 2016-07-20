@@ -1,27 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Storage.UserInfo;
+using Storage.Entities.UserEventArgs;
+using Storage.Entities.UserInfo;
+using Storage.Interfaces;
 
-namespace Storage.Strategy
+namespace Storage.Service
 {
-    public class Slave : Strategy
+    public class Slave : IUserService
     {
-        public Slave(Master master)
+        public List<User> Users { get; set; }
+
+        public Slave(IMaster master)
         {
-            this.Users = new List<User>();
+            Users = master.Users;
             master.AddUser += UpdateAfterAdd;
             master.DeleteUser += UpdateAfterDelete;
         }
 
-        public override int Add(User user, IEnumerator<int> idGenerator)
+        public void Delete(int id)
         {
             throw new AccessViolationException();
         }
 
-        public override void Delete(int id)
+        public int Add(User user)
         {
             throw new AccessViolationException();
+        }
+
+        public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
+        {
+            var result = new List<int>();
+            for (int i = 0; i < criteria.Length; i++)
+            {
+                result.AddRange(Users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId));
+            }
+            return result;
         }
 
         private void UpdateAfterDelete(object sender, UserEventArgs e)

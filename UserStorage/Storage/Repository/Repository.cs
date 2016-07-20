@@ -1,11 +1,13 @@
 ﻿using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
+using Storage.Entities.ServiceState;
+using Storage.Interfaces;
 using Storage.Service;
 
 namespace Storage.Loader
 {
-    public class Loader : ILoader
+    public class Repository : IRepository
     {
         public void Save(ServiceState state)
         {
