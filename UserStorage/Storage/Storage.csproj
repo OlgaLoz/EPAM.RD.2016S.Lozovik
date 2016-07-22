@@ -44,7 +44,6 @@
     <Compile Include="Interfaces\IMaster.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Interfaces\IValidator.cs" />
-    <Compile Include="Serializer\CustomSerializer.cs" />
     <Compile Include="Service\UserService.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Repository\Repository.cs" />

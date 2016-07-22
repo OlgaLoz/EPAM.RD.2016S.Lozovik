@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Storage.Entities.ServiceState;
 using Storage.Entities.UserInfo;
-using Storage.Serializer;
 using CustomConfigurator = Configurator.Configurator;
 
 namespace ConsoleUI
