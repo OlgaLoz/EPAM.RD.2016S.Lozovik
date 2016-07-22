@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using Configurator.ReplicationInfo;
-using FibbonacciGenerator;
-using Storage;
-using Storage.Loader;
-using Storage.Service;
+using Storage.Entities.ServiceState;
+using Storage.Entities.UserInfo;
+using Storage.Serializer;
+using CustomConfigurator = Configurator.Configurator;
 
 namespace ConsoleUI
 {
@@ -22,6 +19,8 @@ namespace ConsoleUI
             //storage.Save();
 
             //ServicesConfigSection servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("Services");
+            CustomConfigurator configurator = new CustomConfigurator();
+            configurator.Start();
 
             Console.ReadLine();
         }

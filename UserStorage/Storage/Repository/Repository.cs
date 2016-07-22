@@ -1,12 +1,16 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Xml.Serialization;
 using Storage.Entities.ServiceState;
+using Storage.Entities.UserInfo;
 using Storage.Interfaces;
-using Storage.Service;
 
-namespace Storage.Loader
+namespace Storage.Repository
 {
+    [Serializable]
     public class Repository : IRepository
     {
         public void Save(ServiceState state)
@@ -25,9 +29,17 @@ namespace Storage.Loader
 
             using (var stream = new FileStream(GetFileName(), FileMode.OpenOrCreate))
             {
+                if (stream.Length == 0)
+                {
+                    return new ServiceState
+                    {
+                        Users = new List<User>()
+                    };
+                }
                 return (ServiceState)formatter.Deserialize(stream);
             }
         }
+        
 
         private string GetFileName()
         {

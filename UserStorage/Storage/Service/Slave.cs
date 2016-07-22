@@ -7,12 +7,14 @@ using Storage.Interfaces;
 
 namespace Storage.Service
 {
+    [Serializable]
     public class Slave : IUserService
     {
         public List<User> Users { get; set; }
 
         public Slave(IMaster master)
         {
+            Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
             Users = master.Users;
             master.AddUser += UpdateAfterAdd;
             master.DeleteUser += UpdateAfterDelete;

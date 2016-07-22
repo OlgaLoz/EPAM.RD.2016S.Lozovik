@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="Interfaces\IMaster.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
+    <Compile Include="Interfaces\IValidator.cs" />
+    <Compile Include="Serializer\CustomSerializer.cs" />
     <Compile Include="Service\UserService.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Repository\Repository.cs" />
@@ -54,6 +56,7 @@
     <Compile Include="Entities\UserInfo\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entities\UserInfo\Visa.cs" />
+    <Compile Include="Validator\UserValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FibbonacciGenerator\FibbonacciGenerator.csproj">

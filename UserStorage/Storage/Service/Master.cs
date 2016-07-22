@@ -9,24 +9,25 @@ using Storage.Interfaces;
 
 namespace Storage.Service
 {
-    public class Master : IMaster
+
+    public class Master : MarshalByRefObject, IMaster
     {
-        private readonly IEnumerable<Func<User, bool>> validators;
+        private readonly IValidator validator;
         private readonly IRepository repository;
         private readonly IGenerator idGenerator;
 
         public List<User> Users { get; set; }
         
-        public Master(IEnumerable<Func<User, bool>> validators, IRepository repository, IGenerator idGenerator)
+        public Master(IValidator validator, IRepository repository, IGenerator idGenerator)
         {
             Users = new List<User>();
-            this.validators = validators;
+            this.validator = validator;
             this.repository = repository;
             this.idGenerator = idGenerator;
 
-            if (validators == null)
+            if (this.validator == null)
             {
-                throw new ArgumentNullException(nameof(validators));
+                throw new ArgumentNullException(nameof(this.validator));
             }
 
             if (repository == null)
@@ -68,7 +69,7 @@ namespace Storage.Service
                 throw new ArgumentNullException(nameof(idGenerator));
             }
 
-            if (!validators.All(validator => validator(user)))
+            if (!validator.IsValid(user))
             {
                 throw new ArgumentException("User is not valid!");
             }
@@ -108,6 +109,7 @@ namespace Storage.Service
 
         public void Load()
         {
+            Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
             var state = repository.Load();
             Users = state.Users;
         }

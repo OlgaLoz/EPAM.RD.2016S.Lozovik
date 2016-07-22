@@ -5,8 +5,10 @@ using FibbonacciGenerator.Interface;
 
 namespace FibbonacciGenerator
 {
+    [Serializable]
     public class FibonacciGenerator : IGenerator
     {
+        [Serializable]
         private class Fibbonacci : IEnumerator<int>
         {
             private int prevNumber;

@@ -4,10 +4,10 @@ namespace Configurator.ReplicationInfo
 {
     public class ServicesConfigSection : ConfigurationSection
     {
-        [ConfigurationProperty("Master")]
-        public ServiceDescription Master => (ServiceDescription)base["Master"];
-
-        [ConfigurationProperty("Slave")]
-        public ServiceDescription Slave => (ServiceDescription)base["Slave"];
+        [ConfigurationProperty("Services")]
+        public ServiceCollection.ServicesCollection ServiceItems
+        {
+            get { return (ServiceCollection.ServicesCollection)base["Services"]; }
+        }
     }
 }
