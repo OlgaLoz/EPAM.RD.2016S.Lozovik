@@ -1,7 +1,7 @@
 ﻿using System;
-using Storage.Entities.UserEventArgs;
+using Storage.Interfaces.Entities.UserEventArgs;
 
-namespace Storage.Interfaces
+namespace Storage.Interfaces.Interfaces
 {
     public interface IMaster : IUserService
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Storage.Entities.UserEventArgs;
-using Storage.Entities.UserInfo;
-using Storage.Interfaces;
+using Storage.Interfaces.Entities.UserEventArgs;
+using Storage.Interfaces.Entities.UserInfo;
+using Storage.Interfaces.Interfaces;
 
 namespace Storage.Service
 {

@@ -41,8 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Fibbonacci.cs" />
-    <Compile Include="Interface\IGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Storage.Interfaces\Storage.Interfaces.csproj">
+      <Project>{9e78219c-7cff-4073-9585-0e7f4c744413}</Project>
+      <Name>Storage.Interfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

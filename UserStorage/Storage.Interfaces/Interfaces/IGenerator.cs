@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace FibbonacciGenerator.Interface
+﻿namespace Storage.Interfaces.Interfaces
 {
     public interface IGenerator
     {

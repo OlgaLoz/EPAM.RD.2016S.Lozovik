@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Xml.Serialization;
-using Storage.Entities.ServiceState;
-using Storage.Entities.UserInfo;
-using Storage.Interfaces;
+using Storage.Interfaces.Entities.ServiceState;
+using Storage.Interfaces.Entities.UserInfo;
+using Storage.Interfaces.Interfaces;
 
 namespace Storage.Repository
 {

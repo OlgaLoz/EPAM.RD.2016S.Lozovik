@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Storage.Entities.UserInfo;
+using Storage.Interfaces.Entities.UserInfo;
 
-
-namespace Storage.Interfaces
+namespace Storage.Interfaces.Interfaces
 {
     public interface IUserService
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Storage.Entities.UserInfo
+namespace Storage.Interfaces.Entities.UserInfo
 {
     [Serializable]
-    public class User : IEquatable<User>//, ICloneable
+    public class User : IEquatable<User>
     {
         public int PersonalId { get; set; }
 
@@ -23,8 +23,8 @@ namespace Storage.Entities.UserInfo
             {
                 return false;
             }
-            return PersonalId == other.PersonalId && 
-                FirstName == other.FirstName && 
+            return PersonalId == other.PersonalId &&
+                FirstName == other.FirstName &&
                 LastName == other.LastName;
         }
 
@@ -35,7 +35,7 @@ namespace Storage.Entities.UserInfo
                 return false;
             }
 
-            return obj.GetType() == typeof(User) && Equals((User) obj);
+            return obj.GetType() == typeof(User) && Equals((User)obj);
         }
 
         public override int GetHashCode()
@@ -48,18 +48,5 @@ namespace Storage.Entities.UserInfo
 
             return hash;
         }
-
-      /*  public object Clone()
-        {
-            return new User
-            {
-                PersonalId = PersonalId,
-                DateOfBirdth = DateOfBirdth,
-                Gender = Gender,
-                FirstName = FirstName,
-                LastName = LastName,
-                Visas = (Visa[])Visas.Clone()
-            };
-        }*/
     }
 }

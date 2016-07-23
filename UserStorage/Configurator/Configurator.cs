@@ -5,9 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Configurator.ReplicationInfo;
-using FibbonacciGenerator.Interface;
-using Storage.Interfaces;
-
+using Storage.Interfaces.Interfaces;
 
 namespace Configurator
 {
@@ -55,17 +53,17 @@ namespace Configurator
             AppDomain domain = AppDomain.CreateDomain("master");
           
             var type = Type.GetType(masterDescription.GeneratorType);
-            if (type?.GetInterface("IGenerator") == null)
+            if (type?.GetInterface("IGenerator") == null || type.GetConstructor(new Type[] {})== null)
                 throw new ConfigurationErrorsException("Unable to create generator.");
             var generator = (IGenerator)Activator.CreateInstance(type);
 
             type = Type.GetType(masterDescription.ValidatorType);
-            if (type?.GetInterface("IValidator") == null)
+            if (type?.GetInterface("IValidator") == null || type.GetConstructor(new Type[] { }) == null)
                 throw new ConfigurationErrorsException("Unable to create validator.");
             var validator = (IValidator)Activator.CreateInstance(type);
 
             type = Type.GetType(masterDescription.RepositoryType);
-            if (type?.GetInterface("IRepository") == null)
+            if (type?.GetInterface("IRepository") == null || type.GetConstructor(new Type[] { }) == null)
                 throw new ConfigurationErrorsException("Unable to create repository.");
             var repository = (IRepository)Activator.CreateInstance(type);
 
@@ -114,7 +112,7 @@ namespace Configurator
             var result = src.Split(',');
             if (result.Length != 2)
             {
-                throw new ConfigurationErrorsException("Enable to recognize type.");
+                throw new ConfigurationErrorsException("Unable to recognize type.");
             }
 
             return result;

@@ -1,4 +1,4 @@
-﻿namespace Storage.Entities.UserInfo
+﻿namespace Storage.Interfaces.Entities.UserInfo
 {
     public enum Gender
     {

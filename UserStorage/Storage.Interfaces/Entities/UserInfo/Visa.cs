@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Storage.Entities.UserInfo
+namespace Storage.Interfaces.Entities.UserInfo
 {
     [Serializable]
     public struct Visa
