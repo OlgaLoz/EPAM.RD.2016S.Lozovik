@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Storage.Interfaces.Entities.ServiceState;
 using Storage.Interfaces.Entities.UserInfo;

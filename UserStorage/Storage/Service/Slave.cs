@@ -47,7 +47,7 @@ namespace Storage.Service
 
         private void UpdateAfterAdd(object sender, UserEventArgs e)
         {
-            var userToRemove = Users.SingleOrDefault(user => user.PersonalId == e.User.PersonalId);
+            var userToRemove = Users.FirstOrDefault(user => user.PersonalId == e.User.PersonalId);
             if (userToRemove != null)
             {
                 Users.Remove(userToRemove);

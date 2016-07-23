@@ -11,7 +11,7 @@ namespace Configurator
 {
     public class Configurator
     {
-        private IUserService masterService;
+        public IUserService masterService;
         private readonly List<IUserService> slaveServices = new List<IUserService>();
       
         public void Start()
@@ -30,7 +30,7 @@ namespace Configurator
                 throw new ConfigurationErrorsException("Count of masters must be one.");
             }
             masterService = CreateMaster(masterCollection[0]);
-            ((IMaster)masterService).Load();
+           ((IMaster)masterService).Load();
 
             var slaveCollection = servicesSection.ServiceItems.Cast<ServiceDescription>()
                 .Where(serviceItem => !serviceItem.IsMaster).ToList();
@@ -51,33 +51,19 @@ namespace Configurator
         private IMaster CreateMaster(ServiceDescription masterDescription )
         {
             AppDomain domain = AppDomain.CreateDomain("master");
-          
-            var type = Type.GetType(masterDescription.GeneratorType);
-            if (type?.GetInterface("IGenerator") == null || type.GetConstructor(new Type[] {})== null)
-                throw new ConfigurationErrorsException("Unable to create generator.");
-            var generator = (IGenerator)Activator.CreateInstance(type);
 
-            type = Type.GetType(masterDescription.ValidatorType);
-            if (type?.GetInterface("IValidator") == null || type.GetConstructor(new Type[] { }) == null)
-                throw new ConfigurationErrorsException("Unable to create validator.");
-            var validator = (IValidator)Activator.CreateInstance(type);
+            var generator = CreateInstance<IGenerator>(masterDescription.GeneratorType);
+            var validator = CreateInstance<IValidator>(masterDescription.ValidatorType);
+            var repository = CreateInstance<IRepository>(masterDescription.RepositoryType);
 
-            type = Type.GetType(masterDescription.RepositoryType);
-            if (type?.GetInterface("IRepository") == null || type.GetConstructor(new Type[] { }) == null)
-                throw new ConfigurationErrorsException("Unable to create repository.");
-            var repository = (IRepository)Activator.CreateInstance(type);
-
-            type = Type.GetType(masterDescription.Type);
-
-            var types = SplitType(masterDescription.Type);
-            var master = (IMaster)domain.CreateInstanceAndUnwrap(types[1], types[0], true, 
+            var type = Type.GetType(masterDescription.Type);
+            if (type == null)
+                throw new ConfigurationErrorsException("Invalid type of master service.");
+            var master = (IMaster)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true, 
                 BindingFlags.CreateInstance, null, 
                 new object[] { validator, repository, generator },
                 CultureInfo.InvariantCulture, null);
 
-
-       /*     var ctor = type?.GetConstructor(new[] { typeof(IValidator), typeof(IRepository), typeof(IGenerator) });
-            var master = (IMaster)ctor?.Invoke(new object[] { validator, repository, generator });*/
             if (master == null)
                 throw new ConfigurationErrorsException("Unable to create master service.");
 
@@ -93,9 +79,6 @@ namespace Configurator
                new object[] {masterService },
                CultureInfo.InvariantCulture, null);
 
-            /* var type = Type.GetType(slaveDescription.Type);
-             var slaveCtor = type?.GetConstructor(new[] { typeof(IMaster) });
-             var slave = (IUserService)slaveCtor?.Invoke(new object[] { masterService });*/
             if (slave == null)
                 throw new ConfigurationErrorsException("Unable to create slave service.");
 
@@ -116,6 +99,19 @@ namespace Configurator
             }
 
             return result;
+        }
+
+        private T CreateInstance<T>(string instanceType)
+        {
+            var type = Type.GetType(instanceType);
+            if (type?.GetInterface(typeof(T).Name) == null || type.GetConstructor(new Type[] { }) == null)
+                throw new ConfigurationErrorsException($"Unable to create instance of {instanceType}.");
+            T instance = (T)Activator.CreateInstance(type);
+            if (instance?.GetType().GetCustomAttribute<SerializableAttribute>()==null)
+            {
+                throw new ConfigurationErrorsException($"Unable to create instance of {instanceType}. Make it serializable.");
+            }
+            return instance;
         }
 
     }
