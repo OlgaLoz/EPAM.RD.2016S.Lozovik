@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\ConnectionInfo\Message.cs" />
+    <Compile Include="Entities\ConnectionInfo\Operation.cs" />
     <Compile Include="Entities\ServiceState\ServiceState.cs" />
     <Compile Include="Entities\UserEventArgs\UserEventArgs.cs" />
     <Compile Include="Entities\UserInfo\Gender.cs" />
@@ -48,6 +50,7 @@
     <Compile Include="Interfaces\IGenerator.cs" />
     <Compile Include="Interfaces\Imaster.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
+    <Compile Include="Interfaces\ISlave.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Interfaces\IValidator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

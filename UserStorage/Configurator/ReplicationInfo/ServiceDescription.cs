@@ -25,6 +25,13 @@ namespace Configurator.ReplicationInfo
             set { base["port"] = value; }
         }
 
+        [ConfigurationProperty("ipAddress", DefaultValue = "", IsKey = false, IsRequired = true)]
+        public string IpAddress
+        {
+            get { return (string)base["ipAddress"]; }
+            set { base["poipAddressrt"] = value; }
+        }
+
         [ConfigurationProperty("generatorType", DefaultValue = "", IsKey = false, IsRequired = false)]
         public string GeneratorType
         {

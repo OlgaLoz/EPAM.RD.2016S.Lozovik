@@ -1,23 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Storage.Interfaces.Entities.UserEventArgs;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
+using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
 
 namespace Storage.Service
 {
     [Serializable]
-    public class Slave : IUserService
+    public class Slave : MarshalByRefObject, ISlave
     {
+        private readonly TcpListener tcpListener ;
         public List<User> Users { get; set; }
+        
 
-        public Slave(IMaster master)
+        public Slave(/*IMaster master*/IPEndPoint connectionInfo)
         {
+            if (connectionInfo == null)
+            {
+                throw new ArgumentNullException(nameof(connectionInfo));
+            }
+
+            tcpListener = new TcpListener(connectionInfo);
+            tcpListener.Start();
+
             Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
-            Users = master.Users;
-            master.AddUser += UpdateAfterAdd;
-            master.DeleteUser += UpdateAfterDelete;
+          /*  Users = master.Users;*/
+          Users = new List<User>();
         }
 
         public void Delete(int id)
@@ -40,19 +53,55 @@ namespace Storage.Service
             return result;
         }
 
-        private void UpdateAfterDelete(object sender, UserEventArgs e)
+        async public void ListenForUpdate()
         {
-            Users.Add(e.User);
-        }
-
-        private void UpdateAfterAdd(object sender, UserEventArgs e)
-        {
-            var userToRemove = Users.FirstOrDefault(user => user.PersonalId == e.User.PersonalId);
-            if (userToRemove != null)
+            try
             {
-                Users.Remove(userToRemove);
+                while (true)
+                {
+                    using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
+                    {
+                        var formatter = new BinaryFormatter();
+                        Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} connected!");
+
+                        byte[] data = new byte[1024];
+                        using (var stream = tcpClient.GetStream())
+                        using (var mStream = new MemoryStream())
+                        {
+                            while (stream.DataAvailable)
+                            {
+                                int count = await stream.ReadAsync(data, 0, data.Length);
+                                await mStream.WriteAsync(data, 0, count);
+                            }
+                            mStream.Position = 0;
+                            var message = (Message)formatter.Deserialize(mStream);
+                            Update(message);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                tcpListener.Stop();
             }
         }
 
+        private void Update(Message message)
+        {
+            switch (message.Operation)
+            {
+                case Operation.Add:
+                     Users.Add(message.User);
+                break;
+                case Operation.Delete:
+                    var userToRemove = Users.FirstOrDefault(user => user.PersonalId == message.User.PersonalId);
+                    if (userToRemove != null)
+                    {
+                        Users.Remove(userToRemove);
+                    }
+                break;
+            }
+           
+        }
     }
 }

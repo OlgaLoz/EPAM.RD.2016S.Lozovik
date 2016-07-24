@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
+using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.ServiceState;
 using Storage.Interfaces.Entities.UserEventArgs;
 using Storage.Interfaces.Entities.UserInfo;
@@ -14,17 +19,13 @@ namespace Storage.Service
         private readonly IValidator validator;
         private readonly IRepository repository;
         private readonly IGenerator idGenerator;
+        private readonly IEnumerable<IPEndPoint> slaves; 
 
         public List<User> Users { get; set; }
         
-        public Master(IValidator validator, IRepository repository, IGenerator idGenerator)
+        public Master(IValidator validator, IRepository repository, IGenerator idGenerator, IEnumerable<IPEndPoint> slaves)
         {
-            Users = new List<User>();
-            this.validator = validator;
-            this.repository = repository;
-            this.idGenerator = idGenerator;
-
-            if (this.validator == null)
+            if (validator == null)
             {
                 throw new ArgumentNullException(nameof(this.validator));
             }
@@ -38,23 +39,16 @@ namespace Storage.Service
             {
                 throw new ArgumentNullException(nameof(idGenerator));
             }
-        }
-
-        public event EventHandler<UserEventArgs> AddUser = delegate {};
-        
-        public event EventHandler<UserEventArgs> DeleteUser = delegate { };
-
-        protected virtual void OnAddUser(UserEventArgs e)
-        {
-            EventHandler<UserEventArgs> temp = AddUser;
-            temp?.Invoke(this, e);
-        }
-
-        protected virtual void OnDeleteUser(UserEventArgs e)
-        {
-            EventHandler<UserEventArgs> temp = DeleteUser;
-            temp?.Invoke(this, e);
-        }
+            if (slaves == null)
+            {
+                throw new ArgumentNullException(nameof(slaves));
+            }
+            Users = new List<User>();
+            this.validator = validator;
+            this.repository = repository;
+            this.idGenerator = idGenerator;
+            this.slaves = slaves;
+         }
 
         public int Add(User user )
         {
@@ -77,7 +71,7 @@ namespace Storage.Service
             user.PersonalId = userId;
             Users.Add(user);
 
-            OnAddUser(new UserEventArgs {User = user});
+            NotifySlaves(new Message {Operation = Operation.Add, User = user});
             return userId;
         }
 
@@ -87,7 +81,7 @@ namespace Storage.Service
             if (userToRemove != null)
             {
                 Users.Remove(userToRemove);
-                OnDeleteUser(new UserEventArgs { User = userToRemove });
+                NotifySlaves(new Message { Operation = Operation.Delete, User = userToRemove });
             }
         }
 
@@ -99,6 +93,29 @@ namespace Storage.Service
                 result.AddRange(Users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId));
             }
             return result;
+        }
+
+        private void NotifySlaves(Message message)
+        {
+            var formatter = new BinaryFormatter();
+            foreach (var ipEndPoint in slaves)
+            {
+                using (TcpClient tcpClient = new TcpClient())
+                {
+                    byte[] data;
+                    using (var stream = new MemoryStream())
+                    {
+                        formatter.Serialize(stream, message);
+                        data = stream.ToArray();
+                    }
+
+                    tcpClient.Connect(ipEndPoint);
+                    using (var stream = tcpClient.GetStream())
+                    {
+                        stream.Write(data, 0, data.Length);
+                    }
+                }
+            }           
         }
 
         public void Save()

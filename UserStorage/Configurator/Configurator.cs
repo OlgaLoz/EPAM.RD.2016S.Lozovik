@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using Configurator.ReplicationInfo;
 using Storage.Interfaces.Interfaces;
@@ -22,25 +23,28 @@ namespace Configurator
             {
                 throw new NullReferenceException("Unable to read section from config.");
             }
+            var services = servicesSection.ServiceItems.Cast<ServiceDescription>().ToList();
 
-            var masterCollection = servicesSection.ServiceItems.Cast<ServiceDescription>()
-                .Where(serviceItem => serviceItem.IsMaster).ToList();
+            var masterCollection = services.Where(serviceItem => serviceItem.IsMaster).ToList();
             if (masterCollection.Count != 1)
             {
                 throw new ConfigurationErrorsException("Count of masters must be one.");
             }
-            masterService = CreateMaster(masterCollection[0]);
-           ((IMaster)masterService).Load();
 
-            var slaveCollection = servicesSection.ServiceItems.Cast<ServiceDescription>()
-                .Where(serviceItem => !serviceItem.IsMaster).ToList();
+            var slaveCollection = services.Where(serviceItem => !serviceItem.IsMaster).ToList();
 
             int i = 0;
             foreach (var serviceDescription in slaveCollection)
             {
-                slaveServices.Add(CreateSlave(serviceDescription, ++i));
+                var slave = CreateSlave(serviceDescription, ++i);
+                slaveServices.Add(slave);
+                slave.ListenForUpdate();
             }
 
+            var slaveConnectionInfo = slaveCollection.Select(s => new IPEndPoint(IPAddress.Parse(s.IpAddress), s.Port)).ToList();
+            masterService = CreateMaster(masterCollection[0], slaveConnectionInfo);
+            ((IMaster)masterService).Load();
+            
         }
 
         public void End()
@@ -48,7 +52,7 @@ namespace Configurator
             ((IMaster)masterService).Save();
         }
 
-        private IMaster CreateMaster(ServiceDescription masterDescription )
+        private IMaster CreateMaster(ServiceDescription masterDescription , IEnumerable<IPEndPoint> slaveConnectionInfo )
         {
             AppDomain domain = AppDomain.CreateDomain("master");
 
@@ -61,7 +65,7 @@ namespace Configurator
                 throw new ConfigurationErrorsException("Invalid type of master service.");
             var master = (IMaster)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true, 
                 BindingFlags.CreateInstance, null, 
-                new object[] { validator, repository, generator },
+                new object[] { validator, repository, generator, slaveConnectionInfo },
                 CultureInfo.InvariantCulture, null);
 
             if (master == null)
@@ -70,35 +74,21 @@ namespace Configurator
             return master;
         }
 
-        private IUserService CreateSlave(ServiceDescription slaveDescription, int slaveIndex)
+        private ISlave CreateSlave(ServiceDescription slaveDescription, int slaveIndex)
         {
             AppDomain domain = AppDomain.CreateDomain($"slave: {slaveIndex}");
-            var types = SplitType(slaveDescription.Type);
-            var slave = (IUserService)domain.CreateInstanceAndUnwrap(types[1], types[0], true,
+            var type = Type.GetType(slaveDescription.Type);
+            if (type == null)
+                throw new ConfigurationErrorsException("Invalid type of slave service.");
+            var slave = (ISlave)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true,
                BindingFlags.CreateInstance, null,
-               new object[] {masterService },
+               new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), },
                CultureInfo.InvariantCulture, null);
 
             if (slave == null)
                 throw new ConfigurationErrorsException("Unable to create slave service.");
 
             return slave;
-        }
-
-        private string[] SplitType(string src)
-        {
-            if (src == null)
-            {
-                throw new ArgumentNullException(nameof(src));
-            }
-
-            var result = src.Split(',');
-            if (result.Length != 2)
-            {
-                throw new ConfigurationErrorsException("Unable to recognize type.");
-            }
-
-            return result;
         }
 
         private T CreateInstance<T>(string instanceType)
