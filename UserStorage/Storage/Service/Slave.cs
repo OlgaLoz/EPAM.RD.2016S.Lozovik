@@ -1,63 +1,94 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using System.Threading.Tasks;
 using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
+using Storage.Logging;
 
 namespace Storage.Service
 {
     [Serializable]
     public class Slave : MarshalByRefObject, ISlave
     {
-        private readonly TcpListener tcpListener ;
+        private readonly TcpListener tcpListener;
+        private readonly Logger logger;
+        private readonly ReaderWriterLockSlim locker;
 
         private delegate void Callback<in T>(T parametr);
-        public List<User> Users { get; set; }
 
-        
+        private List<User> users;  
 
-        public Slave(/*IMaster master*/IPEndPoint connectionInfo)
+        public Slave(IPEndPoint connectionInfo, IRepository repository)
         {
             if (connectionInfo == null)
             {
                 throw new ArgumentNullException(nameof(connectionInfo));
             }
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
 
             tcpListener = new TcpListener(connectionInfo);
             tcpListener.Start();
+            logger = Logger.Instance;
+            locker = new ReaderWriterLockSlim();
 
-            Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
-          /*  Users = master.Users;*/
-          Users = new List<User>();
+            locker.EnterReadLock();
+            try
+            {
+                users = repository.Load().Users ?? new List<User>();
+            }
+            finally
+            {
+                locker.ExitReadLock();
+            }
+
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
         }
 
         public void Delete(int id)
         {
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
             throw new AccessViolationException();
         }
 
         public int Add(User user)
         {
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} add!");
             throw new AccessViolationException();
         }
 
         public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
         {
             var result = new List<int>();
-            for (int i = 0; i < criteria.Length; i++)
+            locker.EnterReadLock();
+            try
             {
-                result.AddRange(Users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId));
+                for (int i = 0; i < criteria.Length; i++)
+                {
+                    result.AddRange(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId));
+                }
             }
+            finally
+            {
+                locker.ExitReadLock();
+            }
+
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search!");
+
             return result;
         }
 
-        async public void InitializeCollection()
+        public async void InitializeCollection()
         {
             try
             {
@@ -69,7 +100,7 @@ namespace Storage.Service
             }
         }
 
-       async public void ListenForUpdate()
+       public async void ListenForUpdate()
         {
            try
            {
@@ -84,14 +115,13 @@ namespace Storage.Service
            }
         }
 
-        async private Task ProcessTcp<T>(Callback<T> callback)
+        private async Task ProcessTcp<T>(Callback<T> callback)
         {
             int dataSize = 1024;
             var formatter = new BinaryFormatter();
             byte[] data = new byte[dataSize];
             using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
             {
-                Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} connected to {callback.Method.Name}!");
 
                 using (var stream = tcpClient.GetStream())
                 using (var mStream = new MemoryStream())
@@ -105,38 +135,56 @@ namespace Storage.Service
                     mStream.Position = 0;
                     try
                     {
+                        logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to {callback.Method.Name}!");
+
                         var message = (T)formatter.Deserialize(mStream);
                         callback(message);
                     }
                     catch 
                     {
-                        
                         throw new InvalidDataException("Unable to deserialize.");
                     }                  
                 }
             }
         }
 
-        private void SetCollection(List<User> users )
+        private void SetCollection(List<User> passedUsers )
         {
-            Users = users;
+            locker.EnterWriteLock();
+            try
+            {
+                users = passedUsers ?? new List<User>();
+            }
+            finally 
+            {
+                locker.ExitWriteLock();
+            }
         }
 
         private void Update(Message message)
         {
-            switch (message.Operation)
+            locker.EnterWriteLock();
+            try
             {
-                case Operation.Add:
-                     Users.Add(message.User);
-                break;
-                case Operation.Delete:
-                    var userToRemove = Users.FirstOrDefault(user => user.PersonalId == message.User.PersonalId);
-                    if (userToRemove != null)
-                    {
-                        Users.Remove(userToRemove);
-                    }
-                break;
-            }        
+                switch (message.Operation)
+                {
+                    case Operation.Add:
+                        users.Add(message.User);
+                        break;
+                    case Operation.Delete:
+                        var userToRemove = users.FirstOrDefault(user => user.PersonalId == message.User.PersonalId);
+                        if (userToRemove != null)
+                        {
+                            users.Remove(userToRemove);
+                        }
+                        break;
+                }
+            }
+            finally
+            {
+                locker.ExitWriteLock();
+            }
+           
         }
     }
 }

@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
+using System.Threading;
 using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.ServiceState;
-using Storage.Interfaces.Entities.UserEventArgs;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
+using Storage.Logging;
 
 namespace Storage.Service
 {
-
     public class Master : MarshalByRefObject, IMaster
     {
         private readonly IValidator validator;
         private readonly IRepository repository;
         private readonly IGenerator idGenerator;
-        private readonly IEnumerable<IPEndPoint> slaves; 
+        private readonly IEnumerable<IPEndPoint> slaves;
+        private readonly Logger logger;
+        private readonly ReaderWriterLockSlim locker;
 
-        public List<User> Users { get; set; }
+        private List<User> users;
         
         public Master(IValidator validator, IRepository repository, IGenerator idGenerator, IEnumerable<IPEndPoint> slaves)
         {
@@ -44,12 +46,14 @@ namespace Storage.Service
             {
                 throw new ArgumentNullException(nameof(slaves));
             }
-            Users = new List<User>();
             this.validator = validator;
             this.repository = repository;
             this.idGenerator = idGenerator;
             this.slaves = slaves;
-         }
+            logger = Logger.Instance;
+            locker = new ReaderWriterLockSlim();
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
+        }
 
         public int Add(User user )
         {
@@ -58,45 +62,70 @@ namespace Storage.Service
                 throw new ArgumentNullException(nameof(user));
             }
 
-            if (idGenerator == null)
-            {
-                throw new ArgumentNullException(nameof(idGenerator));
-            }
-
             if (!validator.IsValid(user))
             {
                 throw new ArgumentException("User is not valid!");
             }
 
-            int userId = idGenerator.GetNextId();
-            user.PersonalId = userId;
-            Users.Add(user);
+            locker.EnterWriteLock();
+            try
+            {
+                idGenerator.GetNextId();
+                user.PersonalId = idGenerator.CurrentId;
+                users.Add(user);
+            }
+            finally
+            {
+                locker.ExitWriteLock();
+            }
+
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} add!");
 
             NotifySlaves(new Message {Operation = Operation.Add, User = user});
-            return userId;
+            return user.PersonalId;
         }
 
         public void Delete(int id)
         {
-            var userToRemove = Users.SingleOrDefault(user => user.PersonalId == id);
-            if (userToRemove != null)
+            locker.EnterWriteLock();
+            try
             {
-                Users.Remove(userToRemove);
-                NotifySlaves(new Message { Operation = Operation.Delete, User = userToRemove });
+                var userToRemove = users.SingleOrDefault(user => user.PersonalId == id);
+                if (userToRemove != null)
+                {
+                    users.Remove(userToRemove);
+                    NotifySlaves(new Message { Operation = Operation.Delete, User = userToRemove });
+                }
             }
+            finally
+            {
+                locker.ExitWriteLock();
+            }
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
         }
 
         public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
         {
             var result = new List<int>();
-            for (int i = 0; i < criteria.Length; i++)
+            locker.EnterReadLock();
+            try
             {
-                result.AddRange(Users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId));
+                for (int i = 0; i < criteria.Length; i++)
+                {
+                    result.AddRange(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId));
+                }
             }
+            finally 
+            {
+                locker.ExitReadLock();
+            }
+
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search!");
+
             return result;
         }
 
-        async private void NotifySlaves<T>(T message)
+        private void NotifySlaves<T>(T message)
         {
             var formatter = new BinaryFormatter();
             byte[] data;
@@ -109,7 +138,10 @@ namespace Storage.Service
             {
                 using (TcpClient tcpClient = new TcpClient())
                 {
-                    await tcpClient.ConnectAsync(ipEndPoint.Address, ipEndPoint.Port);
+
+                    tcpClient.Connect(ipEndPoint.Address, ipEndPoint.Port);
+                    logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} notify {ipEndPoint.Address}-{ipEndPoint.Port}!");
+
                     using (var stream = tcpClient.GetStream())
                     {
                          stream.Write(data, 0, data.Length);
@@ -120,15 +152,33 @@ namespace Storage.Service
 
         public void Save()
         {
-            repository.Save(new ServiceState { Users = Users.ToList(), CurrentId = idGenerator.CurrentId });
+            locker.EnterWriteLock();
+            try
+            {
+                repository.Save(new ServiceState { Users = users.ToList(), CurrentId = idGenerator.CurrentId });
+            }
+            finally 
+            {
+                locker.ExitWriteLock();
+            }
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} save!");
         }
 
         public void Load()
         {
-            Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
-            var state = repository.Load();
-            Users = state.Users;
-            NotifySlaves(Users);
+            locker.EnterWriteLock();
+            try
+            {
+                var state = repository.Load();
+                users = state.Users ?? new List<User>();
+            }
+            finally
+            {
+                locker.ExitWriteLock();
+            }
+
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} load!");
+        //    NotifySlaves(users);
         }
     }
 }

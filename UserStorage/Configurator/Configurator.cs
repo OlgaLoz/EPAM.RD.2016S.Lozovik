@@ -12,10 +12,10 @@ namespace Configurator
 {
     public class Configurator
     {
-        public IUserService masterService;
-        private readonly List<ISlave> slaveServices = new List<ISlave>();
+        private IUserService masterService;
+        private readonly List<IUserService> slaveServices = new List<IUserService>();
       
-        public void Start()
+        public IUserService Start()
         {
             var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("MSServices");
 
@@ -38,14 +38,18 @@ namespace Configurator
             {
                 var slave = CreateSlave(serviceDescription, ++i);
                 slaveServices.Add(slave);
-                slave.InitializeCollection();
-                slave.ListenForUpdate();
+             //   slave.InitializeCollection();
+            }
+
+            foreach (var slaveService in slaveServices)
+            {
+                ((ISlave)slaveService).ListenForUpdate();
             }
 
             var slaveConnectionInfo = slaveCollection.Select(s => new IPEndPoint(IPAddress.Parse(s.IpAddress), s.Port)).ToList();
             masterService = CreateMaster(masterCollection[0], slaveConnectionInfo);
             ((IMaster)masterService).Load();
-            
+            return new Proxy(masterService, slaveServices);           
         }
 
         public void End()
@@ -77,13 +81,15 @@ namespace Configurator
 
         private ISlave CreateSlave(ServiceDescription slaveDescription, int slaveIndex)
         {
-            AppDomain domain = AppDomain.CreateDomain($"slave: {slaveIndex}");
+            AppDomain domain = AppDomain.CreateDomain($"slave#{slaveIndex}");
+
+            var repository = CreateInstance<IRepository>(slaveDescription.RepositoryType);
             var type = Type.GetType(slaveDescription.Type);
             if (type == null)
                 throw new ConfigurationErrorsException("Invalid type of slave service.");
             var slave = (ISlave)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true,
                BindingFlags.CreateInstance, null,
-               new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), },
+               new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), repository},
                CultureInfo.InvariantCulture, null);
 
             if (slave == null)

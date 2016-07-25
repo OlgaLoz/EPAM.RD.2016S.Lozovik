@@ -12,8 +12,6 @@ namespace Storage.Service
         private readonly BooleanSwitch traceSwitch;
         private readonly TraceSource traceSource;
 
-        public List<User> Users { get; set; }
-
         public UserService(IUserService userService)
         {
             if (userService == null)

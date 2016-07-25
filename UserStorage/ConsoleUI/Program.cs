@@ -1,5 +1,7 @@
 ﻿using System;
 using Storage.Interfaces.Entities.UserInfo;
+using Storage.Interfaces.Interfaces;
+using Storage.Service;
 using CustomConfigurator = Configurator.Configurator;
 
 namespace ConsoleUI
@@ -13,10 +15,14 @@ namespace ConsoleUI
         //    ms.Save();
             ms.Load();*/
              CustomConfigurator configurator = new CustomConfigurator();
-            configurator.Start();
-            configurator.masterService.Add(new User() {FirstName = "sdcf", Visas = new [] {new Visa {Country = "asd"}, }});
-            configurator.End();
+             IUserService us = configurator.Start();
+            for (int i = 0; i < 30; i++)
+            {
+                 us.Add(new User {FirstName = $"{i}", Visas = new [] {new Visa {Country = "asd"}, }});
+            }
+
             Console.ReadLine();
+            configurator.End();
         }
     }
 }
