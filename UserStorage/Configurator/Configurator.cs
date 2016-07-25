@@ -13,7 +13,7 @@ namespace Configurator
     public class Configurator
     {
         public IUserService masterService;
-        private readonly List<IUserService> slaveServices = new List<IUserService>();
+        private readonly List<ISlave> slaveServices = new List<ISlave>();
       
         public void Start()
         {
@@ -38,6 +38,7 @@ namespace Configurator
             {
                 var slave = CreateSlave(serviceDescription, ++i);
                 slaveServices.Add(slave);
+                slave.InitializeCollection();
                 slave.ListenForUpdate();
             }
 

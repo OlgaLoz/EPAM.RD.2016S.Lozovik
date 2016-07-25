@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
@@ -15,7 +16,10 @@ namespace Storage.Service
     public class Slave : MarshalByRefObject, ISlave
     {
         private readonly TcpListener tcpListener ;
+
+        private delegate void Callback<in T>(T parametr);
         public List<User> Users { get; set; }
+
         
 
         public Slave(/*IMaster master*/IPEndPoint connectionInfo)
@@ -53,37 +57,69 @@ namespace Storage.Service
             return result;
         }
 
-        async public void ListenForUpdate()
+        async public void InitializeCollection()
         {
             try
             {
-                while (true)
-                {
-                    using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
-                    {
-                        var formatter = new BinaryFormatter();
-                        Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} connected!");
-
-                        byte[] data = new byte[1024];
-                        using (var stream = tcpClient.GetStream())
-                        using (var mStream = new MemoryStream())
-                        {
-                            while (stream.DataAvailable)
-                            {
-                                int count = await stream.ReadAsync(data, 0, data.Length);
-                                await mStream.WriteAsync(data, 0, count);
-                            }
-                            mStream.Position = 0;
-                            var message = (Message)formatter.Deserialize(mStream);
-                            Update(message);
-                        }
-                    }
-                }
+                await ProcessTcp<List<User>>(SetCollection);
             }
-            finally
+            catch 
             {
                 tcpListener.Stop();
             }
+        }
+
+       async public void ListenForUpdate()
+        {
+           try
+           {
+               while (true)
+               {
+                   await ProcessTcp<Message>(Update);
+               }
+           }
+           finally 
+           {
+               tcpListener.Stop();
+           }
+        }
+
+        async private Task ProcessTcp<T>(Callback<T> callback)
+        {
+            int dataSize = 1024;
+            var formatter = new BinaryFormatter();
+            byte[] data = new byte[dataSize];
+            using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
+            {
+                Console.WriteLine($"{AppDomain.CurrentDomain.FriendlyName} connected to {callback.Method.Name}!");
+
+                using (var stream = tcpClient.GetStream())
+                using (var mStream = new MemoryStream())
+                {
+                    int count;
+                    do
+                    {
+                        count = await stream.ReadAsync(data, 0, data.Length);
+                        mStream.Write(data, 0, count);
+                    } while (count >= dataSize);
+                    mStream.Position = 0;
+                    try
+                    {
+                        var message = (T)formatter.Deserialize(mStream);
+                        callback(message);
+                    }
+                    catch 
+                    {
+                        
+                        throw new InvalidDataException("Unable to deserialize.");
+                    }                  
+                }
+            }
+        }
+
+        private void SetCollection(List<User> users )
+        {
+            Users = users;
         }
 
         private void Update(Message message)
@@ -100,8 +136,7 @@ namespace Storage.Service
                         Users.Remove(userToRemove);
                     }
                 break;
-            }
-           
+            }        
         }
     }
 }

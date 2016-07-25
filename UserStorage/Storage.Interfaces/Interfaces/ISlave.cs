@@ -3,5 +3,6 @@
     public interface ISlave : IUserService
     {
         void ListenForUpdate();
+        void InitializeCollection();
     }
 }

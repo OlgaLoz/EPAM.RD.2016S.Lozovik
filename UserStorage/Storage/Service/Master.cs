@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.ServiceState;
 using Storage.Interfaces.Entities.UserEventArgs;
@@ -95,24 +96,23 @@ namespace Storage.Service
             return result;
         }
 
-        private void NotifySlaves(Message message)
+        async private void NotifySlaves<T>(T message)
         {
             var formatter = new BinaryFormatter();
+            byte[] data;
+            using (var stream = new MemoryStream())
+            {
+                formatter.Serialize(stream, message);
+                data = stream.ToArray();
+            }
             foreach (var ipEndPoint in slaves)
             {
                 using (TcpClient tcpClient = new TcpClient())
                 {
-                    byte[] data;
-                    using (var stream = new MemoryStream())
-                    {
-                        formatter.Serialize(stream, message);
-                        data = stream.ToArray();
-                    }
-
-                    tcpClient.Connect(ipEndPoint);
+                    await tcpClient.ConnectAsync(ipEndPoint.Address, ipEndPoint.Port);
                     using (var stream = tcpClient.GetStream())
                     {
-                        stream.Write(data, 0, data.Length);
+                         stream.Write(data, 0, data.Length);
                     }
                 }
             }           
@@ -128,6 +128,7 @@ namespace Storage.Service
             Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
             var state = repository.Load();
             Users = state.Users;
+            NotifySlaves(Users);
         }
     }
 }
