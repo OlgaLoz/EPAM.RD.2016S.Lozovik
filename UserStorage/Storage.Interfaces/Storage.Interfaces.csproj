@@ -48,6 +48,7 @@
     <Compile Include="Entities\UserInfo\User.cs" />
     <Compile Include="Entities\UserInfo\Visa.cs" />
     <Compile Include="Interfaces\IGenerator.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\Imaster.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Interfaces\ISlave.cs" />

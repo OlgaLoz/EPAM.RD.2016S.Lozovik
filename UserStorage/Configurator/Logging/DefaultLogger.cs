@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
+using Storage.Interfaces.Interfaces;
 
-namespace Storage.Logging
+namespace Configurator.Logging
 {
-    public class Logger
+    public class DefaultLogger : MarshalByRefObject, ILogger
     {
         private readonly BooleanSwitch traceSwitch;
         private readonly TraceSource traceSource;
-
-        private static readonly Lazy<Logger> instance = new Lazy<Logger>(() => new Logger());
-
-        public static Logger Instance { get { return instance.Value; } }
-
-        private Logger()
+        public DefaultLogger()
         {
             traceSwitch = new BooleanSwitch("traceSwitch", "");
             traceSource = new TraceSource("trace");
@@ -21,7 +17,9 @@ namespace Storage.Logging
         public void Log(TraceEventType type, string message)
         {
             if (traceSwitch.Enabled)
+            {
                 traceSource.TraceEvent(type, 0, message);
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
-using Storage.Logging;
+
 
 namespace Storage.Service
 {
@@ -19,27 +19,33 @@ namespace Storage.Service
     public class Slave : MarshalByRefObject, ISlave
     {
         private readonly TcpListener tcpListener;
-        private readonly Logger logger;
+        private readonly ILogger logger;
         private readonly ReaderWriterLockSlim locker;
 
         private delegate void Callback<in T>(T parametr);
 
-        private List<User> users;  
+        private readonly List<User> users;  
 
-        public Slave(IPEndPoint connectionInfo, IRepository repository)
+        public Slave(IPEndPoint connectionInfo, IRepository repository, ILogger logger)
         {
             if (connectionInfo == null)
             {
                 throw new ArgumentNullException(nameof(connectionInfo));
             }
+
             if (repository == null)
             {
                 throw new ArgumentNullException(nameof(repository));
             }
 
+            if (logger == null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
             tcpListener = new TcpListener(connectionInfo);
             tcpListener.Start();
-            logger = Logger.Instance;
+            this.logger = logger;
             locker = new ReaderWriterLockSlim();
 
             locker.EnterReadLock();
@@ -88,19 +94,7 @@ namespace Storage.Service
             return result;
         }
 
-        public async void InitializeCollection()
-        {
-            try
-            {
-                await ProcessTcp<List<User>>(SetCollection);
-            }
-            catch 
-            {
-                tcpListener.Stop();
-            }
-        }
-
-       public async void ListenForUpdate()
+        public async void ListenForUpdate()
         {
            try
            {
@@ -122,7 +116,6 @@ namespace Storage.Service
             byte[] data = new byte[dataSize];
             using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
             {
-
                 using (var stream = tcpClient.GetStream())
                 using (var mStream = new MemoryStream())
                 {
@@ -148,19 +141,6 @@ namespace Storage.Service
             }
         }
 
-        private void SetCollection(List<User> passedUsers )
-        {
-            locker.EnterWriteLock();
-            try
-            {
-                users = passedUsers ?? new List<User>();
-            }
-            finally 
-            {
-                locker.ExitWriteLock();
-            }
-        }
-
         private void Update(Message message)
         {
             locker.EnterWriteLock();
@@ -170,12 +150,14 @@ namespace Storage.Service
                 {
                     case Operation.Add:
                         users.Add(message.User);
+                        logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to add; count:{users.Count}!");
                         break;
                     case Operation.Delete:
                         var userToRemove = users.FirstOrDefault(user => user.PersonalId == message.User.PersonalId);
                         if (userToRemove != null)
                         {
                             users.Remove(userToRemove);
+                            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to remove; count:{users.Count}!");
                         }
                         break;
                 }

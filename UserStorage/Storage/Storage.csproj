@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Logging\Logger.cs" />
     <Compile Include="Service\UserService.cs" />
     <Compile Include="Repository\Repository.cs" />
     <Compile Include="Service\Master.cs" />

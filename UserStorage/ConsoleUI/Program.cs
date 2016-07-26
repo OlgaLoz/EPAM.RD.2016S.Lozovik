@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
 using Storage.Service;
@@ -21,8 +22,11 @@ namespace ConsoleUI
                  us.Add(new User {FirstName = $"{i}", Visas = new [] {new Visa {Country = "asd"}, }});
             }
 
-            Console.ReadLine();
+          //  Console.ReadLine();
             configurator.End();
+            File.Delete("users.xml");
+            Console.ReadLine();
+
         }
     }
 }

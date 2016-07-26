@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using Configurator.Logging;
 using Configurator.ReplicationInfo;
 using Storage.Interfaces.Interfaces;
 
@@ -38,7 +39,6 @@ namespace Configurator
             {
                 var slave = CreateSlave(serviceDescription, ++i);
                 slaveServices.Add(slave);
-             //   slave.InitializeCollection();
             }
 
             foreach (var slaveService in slaveServices)
@@ -70,7 +70,7 @@ namespace Configurator
                 throw new ConfigurationErrorsException("Invalid type of master service.");
             var master = (IMaster)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true, 
                 BindingFlags.CreateInstance, null, 
-                new object[] { validator, repository, generator, slaveConnectionInfo },
+                new object[] { validator, repository, generator, slaveConnectionInfo, GlobalLogger.Logger},
                 CultureInfo.InvariantCulture, null);
 
             if (master == null)
@@ -89,7 +89,7 @@ namespace Configurator
                 throw new ConfigurationErrorsException("Invalid type of slave service.");
             var slave = (ISlave)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true,
                BindingFlags.CreateInstance, null,
-               new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), repository},
+               new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), repository, GlobalLogger.Logger},
                CultureInfo.InvariantCulture, null);
 
             if (slave == null)

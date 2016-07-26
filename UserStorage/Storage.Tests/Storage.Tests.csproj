@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -50,10 +51,21 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="MasterTests.cs" />
+    <Compile Include="SlaveTests.cs" />
+    <Compile Include="TestCollection.cs" />
     <Compile Include="UserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Configurator\Configurator.csproj">
+      <Project>{6fd1dce1-32fd-4b8b-9628-1ab27d0a577e}</Project>
+      <Name>Configurator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FibbonacciGenerator\FibbonacciGenerator.csproj">
+      <Project>{52d8e67d-0f1f-4bee-9d79-2792fab95811}</Project>
+      <Name>FibbonacciGenerator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Storage.Interfaces\Storage.Interfaces.csproj">
       <Project>{9e78219c-7cff-4073-9585-0e7f4c744413}</Project>
       <Name>Storage.Interfaces</Name>

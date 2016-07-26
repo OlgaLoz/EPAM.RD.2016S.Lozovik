@@ -11,7 +11,6 @@ using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.ServiceState;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
-using Storage.Logging;
 
 namespace Storage.Service
 {
@@ -21,12 +20,12 @@ namespace Storage.Service
         private readonly IRepository repository;
         private readonly IGenerator idGenerator;
         private readonly IEnumerable<IPEndPoint> slaves;
-        private readonly Logger logger;
+        private readonly ILogger logger;
         private readonly ReaderWriterLockSlim locker;
 
         private List<User> users;
         
-        public Master(IValidator validator, IRepository repository, IGenerator idGenerator, IEnumerable<IPEndPoint> slaves)
+        public Master(IValidator validator, IRepository repository, IGenerator idGenerator, IEnumerable<IPEndPoint> slaves, ILogger logger)
         {
             if (validator == null)
             {
@@ -42,15 +41,22 @@ namespace Storage.Service
             {
                 throw new ArgumentNullException(nameof(idGenerator));
             }
+
             if (slaves == null)
             {
                 throw new ArgumentNullException(nameof(slaves));
             }
+
+            if (logger == null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
             this.validator = validator;
             this.repository = repository;
             this.idGenerator = idGenerator;
             this.slaves = slaves;
-            logger = Logger.Instance;
+            this.logger = logger;
             locker = new ReaderWriterLockSlim();
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
         }
@@ -125,7 +131,7 @@ namespace Storage.Service
             return result;
         }
 
-        private void NotifySlaves<T>(T message)
+        private async void NotifySlaves<T>(T message)
         {
             var formatter = new BinaryFormatter();
             byte[] data;
@@ -138,13 +144,12 @@ namespace Storage.Service
             {
                 using (TcpClient tcpClient = new TcpClient())
                 {
-
-                    tcpClient.Connect(ipEndPoint.Address, ipEndPoint.Port);
+                    await tcpClient.ConnectAsync(ipEndPoint.Address, ipEndPoint.Port);
                     logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} notify {ipEndPoint.Address}-{ipEndPoint.Port}!");
 
                     using (var stream = tcpClient.GetStream())
                     {
-                         stream.Write(data, 0, data.Length);
+                         await stream.WriteAsync(data, 0, data.Length);
                     }
                 }
             }           
@@ -178,7 +183,6 @@ namespace Storage.Service
             }
 
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} load!");
-        //    NotifySlaves(users);
-        }
+       }
     }
 }
