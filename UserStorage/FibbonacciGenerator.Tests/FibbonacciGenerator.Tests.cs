@@ -53,7 +53,5 @@ namespace FibbonacciGenerator.Tests
 
             Assert.AreEqual(13, generator.GetNextId());
         }
-
     }
 }
-

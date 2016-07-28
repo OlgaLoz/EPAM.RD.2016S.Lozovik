@@ -13,8 +13,8 @@ namespace Configurator
 {
     public class Configurator
     {
-        private IUserService masterService;
         private readonly List<IUserService> slaveServices = new List<IUserService>();
+        private IUserService masterService;
       
         public IUserService Start()
         {
@@ -24,13 +24,14 @@ namespace Configurator
             {
                 throw new NullReferenceException("Unable to read section from config.");
             }
+
             var services = servicesSection.ServiceItems.Cast<ServiceDescription>().ToList();
 
             var masterCollection = services.Where(serviceItem => serviceItem.IsMaster).ToList();
-            if (masterCollection.Count != 1)
+         /*   if (masterCollection.Count != 1)
             {
                 throw new ConfigurationErrorsException("Count of masters must be one.");
-            }
+            }*/
 
             var slaveCollection = services.Where(serviceItem => !serviceItem.IsMaster).ToList();
 
@@ -57,24 +58,41 @@ namespace Configurator
             ((IMaster)masterService).Save();
         }
 
-        private IMaster CreateMaster(ServiceDescription masterDescription , IEnumerable<IPEndPoint> slaveConnectionInfo )
+        private IMaster CreateMaster(ServiceDescription masterDescription, IEnumerable<IPEndPoint> slaveConnectionInfo)
         {
             AppDomain domain = AppDomain.CreateDomain("master");
 
-            var generator = CreateInstance<IGenerator>(masterDescription.GeneratorType);
-            var validator = CreateInstance<IValidator>(masterDescription.ValidatorType);
-            var repository = CreateInstance<IRepository>(masterDescription.RepositoryType);
+            var servicesSection = (DependencyConfigSection)ConfigurationManager.GetSection("Dependencies");
+
+            if (servicesSection == null)
+            {
+                throw new NullReferenceException("Unable to read section from config.");
+            }
+
+            var generator = CreateInstance<IGenerator>(servicesSection.Generator.Type);
+            var validator = CreateInstance<IValidator>(servicesSection.Validator.Type);
+            var repository = CreateInstance<IRepository>(servicesSection.Repository.Type);
 
             var type = Type.GetType(masterDescription.Type);
             if (type == null)
+            {
                 throw new ConfigurationErrorsException("Invalid type of master service.");
-            var master = (IMaster)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true, 
-                BindingFlags.CreateInstance, null, 
-                new object[] { validator, repository, generator, slaveConnectionInfo, GlobalLogger.Logger},
-                CultureInfo.InvariantCulture, null);
+            }
+
+            var master = (IMaster)domain.CreateInstanceAndUnwrap(
+                type.Assembly.FullName,
+                type.FullName, 
+                true, 
+                BindingFlags.CreateInstance, 
+                null, 
+                new object[] { validator, repository, generator, slaveConnectionInfo, GlobalLogger.Logger },
+                CultureInfo.InvariantCulture,
+                null);
 
             if (master == null)
+            {
                 throw new ConfigurationErrorsException("Unable to create master service.");
+            }
 
             return master;
         }
@@ -83,14 +101,25 @@ namespace Configurator
         {
             AppDomain domain = AppDomain.CreateDomain($"slave#{slaveIndex}");
 
-            var repository = CreateInstance<IRepository>(slaveDescription.RepositoryType);
+            var servicesSection = (DependencyConfigSection)ConfigurationManager.GetSection("Dependencies");
+
+            if (servicesSection == null)
+            {
+                throw new NullReferenceException("Unable to read section from config.");
+            }
+
+            var repository = CreateInstance<IRepository>(servicesSection.Repository.Type);
             var type = Type.GetType(slaveDescription.Type);
             if (type == null)
                 throw new ConfigurationErrorsException("Invalid type of slave service.");
-            var slave = (ISlave)domain.CreateInstanceAndUnwrap(type.Assembly.FullName, type.FullName, true,
-               BindingFlags.CreateInstance, null,
-               new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), repository, GlobalLogger.Logger},
-               CultureInfo.InvariantCulture, null);
+            var slave = (ISlave)domain.CreateInstanceAndUnwrap(type.Assembly.FullName,
+                type.FullName,
+                true,
+                BindingFlags.CreateInstance,
+                null,
+                new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), repository, GlobalLogger.Logger},
+                CultureInfo.InvariantCulture, 
+                null);
 
             if (slave == null)
                 throw new ConfigurationErrorsException("Unable to create slave service.");
@@ -104,7 +133,7 @@ namespace Configurator
             if (type?.GetInterface(typeof(T).Name) == null || type.GetConstructor(new Type[] { }) == null)
                 throw new ConfigurationErrorsException($"Unable to create instance of {instanceType}.");
             T instance = (T)Activator.CreateInstance(type);
-            if (instance?.GetType().GetCustomAttribute<SerializableAttribute>()==null)
+            if (instance?.GetType().GetCustomAttribute<SerializableAttribute>() == null)
             {
                 throw new ConfigurationErrorsException($"Unable to create instance of {instanceType}. Make it serializable.");
             }

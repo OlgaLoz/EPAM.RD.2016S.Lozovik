@@ -26,6 +26,7 @@ namespace Storage.Interfaces.Entities.UserInfo
             {
                 return false;
             }
+
             return PersonalId == other.PersonalId &&
                 FirstName == other.FirstName &&
                 LastName == other.LastName;
@@ -78,6 +79,7 @@ namespace Storage.Interfaces.Entities.UserInfo
                 var visa = (Visa)visaSer.Deserialize(reader);
                 Visas[i] = visa;
             }
+
             reader.ReadEndElement();
 
             reader.ReadEndElement();
@@ -91,8 +93,7 @@ namespace Storage.Interfaces.Entities.UserInfo
             writer.WriteElementString(nameof(FirstName), FirstName);
             writer.WriteElementString(nameof(LastName), LastName);
             writer.WriteElementString(nameof(Gender), ((int)Gender).ToString());
-            writer.WriteElementString(nameof(DateOfBirdth),
-            DateOfBirdth.ToString("yyyy-MM-dd"));
+            writer.WriteElementString(nameof(DateOfBirdth), DateOfBirdth.ToString("yyyy-MM-dd"));
 
             writer.WriteStartElement(nameof(Visas));
             writer.WriteAttributeString("count", Visas.Length.ToString());
@@ -100,6 +101,7 @@ namespace Storage.Interfaces.Entities.UserInfo
             {
                 Visas[i].WriteXml(writer);
             }
+
             writer.WriteEndElement();
 
             writer.WriteEndElement();

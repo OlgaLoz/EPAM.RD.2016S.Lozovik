@@ -10,13 +10,14 @@ namespace Storage.Interfaces.Entities.ServiceState
     [Serializable]
     public class ServiceState : IXmlSerializable
     {
-        public List<User> Users { get; set; }
-        public int CurrentId { get; set; }
-
         public ServiceState()
         {
             Users = new List<User>();
         }
+
+        public List<User> Users { get; set; }
+
+        public int CurrentId { get; set; }
 
         public XmlSchema GetSchema()
         {
@@ -35,9 +36,10 @@ namespace Storage.Interfaces.Entities.ServiceState
             var userSer = new XmlSerializer(typeof(User));
             for (int i = 0; i < count; i++)
             {
-                var user = (User) userSer.Deserialize(reader);
+                var user = (User)userSer.Deserialize(reader);
                 Users.Add(user);
             }
+
             reader.ReadEndElement();
 
             reader.ReadEndElement();
@@ -53,6 +55,7 @@ namespace Storage.Interfaces.Entities.ServiceState
             {
                 user.WriteXml(writer);
             }
+
             writer.WriteEndElement();
         }
     }

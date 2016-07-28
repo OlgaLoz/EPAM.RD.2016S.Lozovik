@@ -10,7 +10,7 @@ namespace Configurator.Logging
         private readonly TraceSource traceSource;
         public DefaultLogger()
         {
-            traceSwitch = new BooleanSwitch("traceSwitch", "");
+            traceSwitch = new BooleanSwitch("traceSwitch", String.Empty);
             traceSource = new TraceSource("trace");
         }
 

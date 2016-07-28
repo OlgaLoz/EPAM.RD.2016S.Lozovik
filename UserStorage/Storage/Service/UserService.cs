@@ -6,9 +6,9 @@ using Storage.Interfaces.Interfaces;
 
 namespace Storage.Service
 {
-    public class UserService : IUserService
+    public class UserService/* : IUserService*/
     {
-        private readonly IUserService userService;
+   /*     private readonly IUserService userService;
         private readonly BooleanSwitch traceSwitch;
         private readonly TraceSource traceSource;
 
@@ -20,21 +20,24 @@ namespace Storage.Service
                     traceSource.TraceEvent(TraceEventType.Error, 0, "User service is null!");
                 throw new ArgumentNullException(nameof(userService));
             }
-            traceSwitch = new BooleanSwitch("traceSwitch","");
+            traceSwitch = new BooleanSwitch("traceSwitch",String.Empty);
             traceSource = new TraceSource("traceSource");
             this.userService = userService;
         }
         
         public int Add(User user)
         {
-            if(traceSwitch.Enabled)
-               traceSource.TraceEvent(TraceEventType.Information, 0, "Add method work!");
+            if (traceSwitch.Enabled)
+            {
+                traceSource.TraceEvent(TraceEventType.Information, 0, "Add method work!");
+            }
+
             return userService.Add(user);
         }
 
         public IEnumerable<int> Search(Predicate<User>[] criteria)
         {
-            if (traceSwitch.Enabled)
+            if (traceSwitch.Enabled) 
                 traceSource.TraceEvent(TraceEventType.Information, 0, "Search method work!");
             return userService.Search(criteria);
         }
@@ -44,6 +47,6 @@ namespace Storage.Service
             if (traceSwitch.Enabled)
                 traceSource.TraceEvent(TraceEventType.Information, 0, "Delete method work!");
             userService.Delete(id);
-        }
+        }*/
     }
 }

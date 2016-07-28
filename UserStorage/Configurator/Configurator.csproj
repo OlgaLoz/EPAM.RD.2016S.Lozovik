@@ -46,9 +46,11 @@
     <Compile Include="Logging\GlobalLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Proxy.cs" />
+    <Compile Include="ReplicationInfo\DependencyConfigSection.cs" />
     <Compile Include="ReplicationInfo\ServiceCollection.cs" />
     <Compile Include="ReplicationInfo\ServiceDescription.cs" />
     <Compile Include="ReplicationInfo\ServicesConfigSection.cs" />
+    <Compile Include="ReplicationInfo\TypeInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Storage.Interfaces\Storage.Interfaces.csproj">

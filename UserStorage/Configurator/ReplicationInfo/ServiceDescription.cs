@@ -25,32 +25,18 @@ namespace Configurator.ReplicationInfo
             set { base["port"] = value; }
         }
 
-        [ConfigurationProperty("ipAddress", DefaultValue = "", IsKey = false, IsRequired = true)]
+        [ConfigurationProperty("host", DefaultValue = "", IsKey = false, IsRequired = false)]
+        public string Host
+        {
+            get { return (string)base["host"]; }
+            set { base["host"] = value; }
+        }
+
+        [ConfigurationProperty("ipAddress", DefaultValue = "127.0.0.1", IsKey = false, IsRequired = false)]
         public string IpAddress
         {
             get { return (string)base["ipAddress"]; }
-            set { base["poipAddressrt"] = value; }
-        }
-
-        [ConfigurationProperty("generatorType", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string GeneratorType
-        {
-            get { return (string)base["generatorType"]; }
-            set { base["generatorType"] = value; }
-        }
-
-        [ConfigurationProperty("validatorType", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string ValidatorType
-        {
-            get { return (string)base["validatorType"]; }
-            set { base["validatorType"] = value; }
-        }
-
-        [ConfigurationProperty("repositoryType", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string RepositoryType
-        {
-            get { return (string)base["repositoryType"]; }
-            set { base["repositoryType"] = value; }
+            set { base["ipAddress"] = value; }
         }
     }
 }

@@ -12,7 +12,6 @@ using Storage.Interfaces.Entities.ConnectionInfo;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Interfaces;
 
-
 namespace Storage.Service
 {
     [Serializable]
@@ -21,10 +20,7 @@ namespace Storage.Service
         private readonly TcpListener tcpListener;
         private readonly ILogger logger;
         private readonly ReaderWriterLockSlim locker;
-
-        private delegate void Callback<in T>(T parametr);
-
-        private readonly List<User> users;  
+        private readonly List<User> users;
 
         public Slave(IPEndPoint connectionInfo, IRepository repository, ILogger logger)
         {
@@ -61,6 +57,8 @@ namespace Storage.Service
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
         }
 
+        private delegate void Callback<in T>(T parametr);
+        
         public void Delete(int id)
         {
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
@@ -117,20 +115,22 @@ namespace Storage.Service
             using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
             {
                 using (var stream = tcpClient.GetStream())
-                using (var mStream = new MemoryStream())
+                using (var memStream = new MemoryStream())
                 {
                     int count;
                     do
                     {
                         count = await stream.ReadAsync(data, 0, data.Length);
-                        mStream.Write(data, 0, count);
-                    } while (count >= dataSize);
-                    mStream.Position = 0;
+                        memStream.Write(data, 0, count);
+                    }
+                    while (count >= dataSize);
+
+                    memStream.Position = 0;
                     try
                     {
                         logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to {callback.Method.Name}!");
 
-                        var message = (T)formatter.Deserialize(mStream);
+                        var message = (T)formatter.Deserialize(memStream);
                         callback(message);
                     }
                     catch 
@@ -159,6 +159,7 @@ namespace Storage.Service
                             users.Remove(userToRemove);
                             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to remove; count:{users.Count}!");
                         }
+
                         break;
                 }
             }
@@ -166,7 +167,6 @@ namespace Storage.Service
             {
                 locker.ExitWriteLock();
             }
-           
         }
     }
 }

@@ -36,11 +36,11 @@ namespace Storage.Repository
                         Users = new List<User>()
                     };
                 }
+
                 return (ServiceState)formatter.Deserialize(stream);
             }
         }
         
-
         private string GetFileName()
         {
             var value = ConfigurationManager.AppSettings["fileName"];
@@ -48,6 +48,7 @@ namespace Storage.Repository
             {
                 throw new FileNotFoundException();
             }
+
             return value;
         }
     }

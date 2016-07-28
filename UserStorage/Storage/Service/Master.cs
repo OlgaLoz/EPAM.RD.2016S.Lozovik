@@ -61,7 +61,7 @@ namespace Storage.Service
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
         }
 
-        public int Add(User user )
+        public int Add(User user)
         {
             if (user == null)
             {
@@ -87,7 +87,7 @@ namespace Storage.Service
 
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} add!");
 
-            NotifySlaves(new Message {Operation = Operation.Add, User = user});
+            NotifySlaves(new Message { Operation = Operation.Add, User = user });
             return user.PersonalId;
         }
 
@@ -107,6 +107,7 @@ namespace Storage.Service
             {
                 locker.ExitWriteLock();
             }
+
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
         }
 
@@ -131,30 +132,6 @@ namespace Storage.Service
             return result;
         }
 
-        private async void NotifySlaves<T>(T message)
-        {
-            var formatter = new BinaryFormatter();
-            byte[] data;
-            using (var stream = new MemoryStream())
-            {
-                formatter.Serialize(stream, message);
-                data = stream.ToArray();
-            }
-            foreach (var ipEndPoint in slaves)
-            {
-                using (TcpClient tcpClient = new TcpClient())
-                {
-                    await tcpClient.ConnectAsync(ipEndPoint.Address, ipEndPoint.Port);
-                    logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} notify {ipEndPoint.Address}-{ipEndPoint.Port}!");
-
-                    using (var stream = tcpClient.GetStream())
-                    {
-                         await stream.WriteAsync(data, 0, data.Length);
-                    }
-                }
-            }           
-        }
-
         public void Save()
         {
             locker.EnterWriteLock();
@@ -166,6 +143,7 @@ namespace Storage.Service
             {
                 locker.ExitWriteLock();
             }
+
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} save!");
         }
 
@@ -184,5 +162,30 @@ namespace Storage.Service
 
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} load!");
        }
+
+        private async void NotifySlaves<T>(T message)
+        {
+            var formatter = new BinaryFormatter();
+            byte[] data;
+            using (var stream = new MemoryStream())
+            {
+                formatter.Serialize(stream, message);
+                data = stream.ToArray();
+            }
+
+            foreach (var ipEndPoint in slaves)
+            {
+                using (TcpClient tcpClient = new TcpClient())
+                {
+                    await tcpClient.ConnectAsync(ipEndPoint.Address, ipEndPoint.Port);
+                    logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} notify {ipEndPoint.Address}-{ipEndPoint.Port}!");
+
+                    using (var stream = tcpClient.GetStream())
+                    {
+                        await stream.WriteAsync(data, 0, data.Length);
+                    }
+                }
+            }
+        }
     }
 }

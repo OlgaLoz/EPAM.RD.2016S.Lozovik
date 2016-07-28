@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace Storage.Interfaces.Entities.UserInfo
 {
     [Serializable]
-    public struct Visa: IXmlSerializable
+    public struct Visa : IXmlSerializable
     {
         public string Country { get; set; }
 

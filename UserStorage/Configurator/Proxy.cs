@@ -17,10 +17,12 @@ namespace Configurator
             {
                 throw new ArgumentNullException(nameof(master));
             }
+
             if (slaves == null)
             {
                 throw new ArgumentNullException(nameof(slaves));
             }
+
             this.master = master;
             this.slaves = slaves;
         }

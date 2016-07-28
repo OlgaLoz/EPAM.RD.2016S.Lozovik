@@ -7,9 +7,9 @@ using CustomConfigurator = Configurator.Configurator;
 
 namespace ConsoleUI
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
         /*    var ms = new Master(new UserValidator(), new CustomRepository(), new FibonacciGenerator());
         //  ms.Add(new User {FirstName = "sdfv", Visas = new[] {new Visa {Country = "dffv"}}});
@@ -19,14 +19,22 @@ namespace ConsoleUI
              IUserService us = configurator.Start();
             for (int i = 0; i < 30; i++)
             {
-                 us.Add(new User {FirstName = $"{i}", Visas = new [] {new Visa {Country = "asd"}, }});
+                 us.Add(new User
+                 {
+                     FirstName = $"{i}",
+                     Visas = new[]
+                     {
+                         new Visa
+                         {
+                             Country = "asd"
+                         }
+                     }
+                 });
             }
 
-          //  Console.ReadLine();
             configurator.End();
             File.Delete("users.xml");
             Console.ReadLine();
-
         }
     }
 }

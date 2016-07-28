@@ -3,6 +3,7 @@
     public interface IMaster : IUserService
     {
         void Save();
+
         void Load();
     }
 }

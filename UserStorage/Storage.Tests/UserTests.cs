@@ -62,6 +62,5 @@ namespace Storage.Tests
 
             Assert.AreEqual(firstUser.GetHashCode(), secondUser.GetHashCode());
         }
-
     }
 }

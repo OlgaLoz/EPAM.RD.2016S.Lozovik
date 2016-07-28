@@ -7,6 +7,8 @@ namespace Configurator.ReplicationInfo
         [ConfigurationCollection(typeof(ServiceDescription), AddItemName = "add")]
         public class ServicesCollection : ConfigurationElementCollection
         {
+            public ServiceDescription this[int index] => (ServiceDescription)BaseGet(index);
+
             protected override ConfigurationElement CreateNewElement()
             {
                 return new ServiceDescription();
@@ -16,8 +18,6 @@ namespace Configurator.ReplicationInfo
             {
                 return ((ServiceDescription)element).Port;
             }
-
-            public ServiceDescription this[int index] => (ServiceDescription)BaseGet(index);
         }
     }
 }
