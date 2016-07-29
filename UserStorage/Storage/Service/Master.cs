@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using Storage.Interfaces.Entities.ConnectionInfo;
@@ -24,6 +25,44 @@ namespace Storage.Service
         private readonly ReaderWriterLockSlim locker;
 
         private List<User> users;
+
+        public Master(IFactory factory, IEnumerable<IPEndPoint> slaves)
+        {
+            validator = factory.GetInstance<IValidator>();
+            repository = factory.GetInstance<IRepository>(); 
+            idGenerator = factory.GetInstance<IGenerator>();
+            logger = factory.GetInstance<ILogger>();
+
+            if (validator == null)
+            {
+                throw new ArgumentNullException(nameof(validator));
+            }
+
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
+
+            if (idGenerator == null)
+            {
+                throw new ArgumentNullException(nameof(idGenerator));
+            }
+
+            if (logger == null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
+            if (slaves == null)
+            {
+                throw new ArgumentNullException(nameof(slaves));
+            }
+
+            this.slaves = slaves;
+
+            locker = new ReaderWriterLockSlim();
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
+        }
         
         public Master(IValidator validator, IRepository repository, IGenerator idGenerator, IEnumerable<IPEndPoint> slaves, ILogger logger)
         {

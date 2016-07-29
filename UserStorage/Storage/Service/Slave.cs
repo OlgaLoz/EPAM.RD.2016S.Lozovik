@@ -22,6 +22,43 @@ namespace Storage.Service
         private readonly ReaderWriterLockSlim locker;
         private readonly List<User> users;
 
+        public Slave(IPEndPoint connectionInfo, IFactory factory)
+        {
+            if (connectionInfo == null)
+            {
+                throw new ArgumentNullException(nameof(connectionInfo));
+            }
+
+            var repository = factory.GetInstance<IRepository>();
+            if (repository == null)
+            {
+                throw new ArgumentNullException(nameof(repository));
+            }
+
+            logger = factory.GetInstance<ILogger>();
+            if (logger == null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
+            tcpListener = new TcpListener(connectionInfo);
+            tcpListener.Start();
+           
+            locker = new ReaderWriterLockSlim();
+
+            locker.EnterReadLock();
+            try
+            {
+                users = repository.Load().Users ?? new List<User>();
+            }
+            finally
+            {
+                locker.ExitReadLock();
+            }
+
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
+        }
+
         public Slave(IPEndPoint connectionInfo, IRepository repository, ILogger logger)
         {
             if (connectionInfo == null)

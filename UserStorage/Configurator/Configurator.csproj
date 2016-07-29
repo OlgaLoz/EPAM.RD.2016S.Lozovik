@@ -42,8 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configurator.cs" />
+    <Compile Include="Factory\DependencyFactory.cs" />
     <Compile Include="Logging\DefaultLogger.cs" />
-    <Compile Include="Logging\GlobalLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Proxy.cs" />
     <Compile Include="ReplicationInfo\DependencyConfigSection.cs" />

@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using Configurator.Logging;
+using Configurator.Factory;
 using Configurator.ReplicationInfo;
 using Storage.Interfaces.Interfaces;
 
@@ -19,20 +19,13 @@ namespace Configurator
         public IUserService Start()
         {
             var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("MSServices");
-
             if (servicesSection == null)
             {
                 throw new NullReferenceException("Unable to read section from config.");
             }
 
             var services = servicesSection.ServiceItems.Cast<ServiceDescription>().ToList();
-
             var masterCollection = services.Where(serviceItem => serviceItem.IsMaster).ToList();
-         /*   if (masterCollection.Count != 1)
-            {
-                throw new ConfigurationErrorsException("Count of masters must be one.");
-            }*/
-
             var slaveCollection = services.Where(serviceItem => !serviceItem.IsMaster).ToList();
 
             int i = 0;
@@ -40,11 +33,7 @@ namespace Configurator
             {
                 var slave = CreateSlave(serviceDescription, ++i);
                 slaveServices.Add(slave);
-            }
-
-            foreach (var slaveService in slaveServices)
-            {
-                ((ISlave)slaveService).ListenForUpdate();
+                slave.ListenForUpdate();
             }
 
             var slaveConnectionInfo = slaveCollection.Select(s => new IPEndPoint(IPAddress.Parse(s.IpAddress), s.Port)).ToList();
@@ -55,23 +44,13 @@ namespace Configurator
 
         public void End()
         {
-            ((IMaster)masterService).Save();
+            var master = masterService as IMaster;
+            master?.Save();
         }
 
         private IMaster CreateMaster(ServiceDescription masterDescription, IEnumerable<IPEndPoint> slaveConnectionInfo)
         {
             AppDomain domain = AppDomain.CreateDomain("master");
-
-            var servicesSection = (DependencyConfigSection)ConfigurationManager.GetSection("Dependencies");
-
-            if (servicesSection == null)
-            {
-                throw new NullReferenceException("Unable to read section from config.");
-            }
-
-            var generator = CreateInstance<IGenerator>(servicesSection.Generator.Type);
-            var validator = CreateInstance<IValidator>(servicesSection.Validator.Type);
-            var repository = CreateInstance<IRepository>(servicesSection.Repository.Type);
 
             var type = Type.GetType(masterDescription.Type);
             if (type == null)
@@ -81,11 +60,11 @@ namespace Configurator
 
             var master = (IMaster)domain.CreateInstanceAndUnwrap(
                 type.Assembly.FullName,
-                type.FullName, 
-                true, 
-                BindingFlags.CreateInstance, 
-                null, 
-                new object[] { validator, repository, generator, slaveConnectionInfo, GlobalLogger.Logger },
+                type.FullName,
+                true,
+                BindingFlags.CreateInstance,
+                null,
+                new object[] { CreateFactory(), slaveConnectionInfo },
                 CultureInfo.InvariantCulture,
                 null);
 
@@ -101,6 +80,32 @@ namespace Configurator
         {
             AppDomain domain = AppDomain.CreateDomain($"slave#{slaveIndex}");
 
+            var type = Type.GetType(slaveDescription.Type);
+            if (type == null)
+            {
+                throw new ConfigurationErrorsException("Invalid type of slave service.");
+            }
+
+            var slave = (ISlave)domain.CreateInstanceAndUnwrap(
+                type.Assembly.FullName,
+                type.FullName,
+                true,
+                BindingFlags.CreateInstance,
+                null,
+                new object[] { new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress), slaveDescription.Port), CreateFactory() },
+                CultureInfo.InvariantCulture,
+                null);
+
+            if (slave == null)
+            {
+                throw new ConfigurationErrorsException("Unable to create slave service.");
+            }
+
+            return slave;
+        }
+
+        private IFactory CreateFactory()
+        {
             var servicesSection = (DependencyConfigSection)ConfigurationManager.GetSection("Dependencies");
 
             if (servicesSection == null)
@@ -108,37 +113,14 @@ namespace Configurator
                 throw new NullReferenceException("Unable to read section from config.");
             }
 
-            var repository = CreateInstance<IRepository>(servicesSection.Repository.Type);
-            var type = Type.GetType(slaveDescription.Type);
-            if (type == null)
-                throw new ConfigurationErrorsException("Invalid type of slave service.");
-            var slave = (ISlave)domain.CreateInstanceAndUnwrap(type.Assembly.FullName,
-                type.FullName,
-                true,
-                BindingFlags.CreateInstance,
-                null,
-                new object[] {new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress),slaveDescription.Port ), repository, GlobalLogger.Logger},
-                CultureInfo.InvariantCulture, 
-                null);
-
-            if (slave == null)
-                throw new ConfigurationErrorsException("Unable to create slave service.");
-
-            return slave;
-        }
-
-        private T CreateInstance<T>(string instanceType)
-        {
-            var type = Type.GetType(instanceType);
-            if (type?.GetInterface(typeof(T).Name) == null || type.GetConstructor(new Type[] { }) == null)
-                throw new ConfigurationErrorsException($"Unable to create instance of {instanceType}.");
-            T instance = (T)Activator.CreateInstance(type);
-            if (instance?.GetType().GetCustomAttribute<SerializableAttribute>() == null)
+            Dictionary<Type, string> types = new Dictionary<Type, string>
             {
-                throw new ConfigurationErrorsException($"Unable to create instance of {instanceType}. Make it serializable.");
-            }
-            return instance;
-        }
-
+                { typeof(IGenerator), servicesSection.Generator.Type },
+                { typeof(IValidator), servicesSection.Validator.Type },
+                { typeof(IRepository), servicesSection.Repository.Type },
+                { typeof(ILogger), servicesSection.Logger.Type }
+            };
+            return new DependencyFactory(types);
+        } 
     }
 }

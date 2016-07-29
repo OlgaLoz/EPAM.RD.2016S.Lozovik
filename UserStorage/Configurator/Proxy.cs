@@ -39,11 +39,13 @@ namespace Configurator
                 currentService++;
                 return master.Search(criteria);
             }
+
             if (currentService == slaves.Count + 1)
             {
                 currentService = 1;
                 return master.Search(criteria);
             }
+
             return slaves[currentService - 1].Search(criteria);
         }
 

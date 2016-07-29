@@ -4,13 +4,15 @@ using Storage.Interfaces.Interfaces;
 
 namespace Configurator.Logging
 {
-    public class DefaultLogger : MarshalByRefObject, ILogger
+    [Serializable]
+    public class DefaultLogger : ILogger
     {
         private readonly BooleanSwitch traceSwitch;
         private readonly TraceSource traceSource;
+
         public DefaultLogger()
         {
-            traceSwitch = new BooleanSwitch("traceSwitch", String.Empty);
+            traceSwitch = new BooleanSwitch("traceSwitch", string.Empty);
             traceSource = new TraceSource("trace");
         }
 
