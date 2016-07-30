@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Storage.Interfaces.Entities.UserInfo;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Services;
 using Storage.Service;
 using CustomConfigurator = Configurator.Configurator;
 

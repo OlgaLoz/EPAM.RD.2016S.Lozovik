@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Storage.Interfaces.Entities.UserInfo;
-using Storage.Interfaces.Interfaces;
 
 namespace Storage.Service
 {

@@ -1,33 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-using System.Threading.Tasks;
 using Storage.Interfaces.Entities.ConnectionInfo;
+using Storage.Interfaces.Entities.UserEventArgs;
 using Storage.Interfaces.Entities.UserInfo;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Factory;
+using Storage.Interfaces.Logger;
+using Storage.Interfaces.Network;
+using Storage.Interfaces.Repository;
+using Storage.Interfaces.Services;
 
 namespace Storage.Service
 {
     [Serializable]
-    public class Slave : MarshalByRefObject, ISlave
+    public class Slave : MarshalByRefObject, IUserService, IListener
     {
-        private readonly TcpListener tcpListener;
         private readonly ILogger logger;
+        private readonly IReceiver receiver;
         private readonly ReaderWriterLockSlim locker;
         private readonly List<User> users;
 
-        public Slave(IPEndPoint connectionInfo, IFactory factory)
+        public Slave(IFactory factory)
         {
-            if (connectionInfo == null)
+            if (factory == null)
             {
-                throw new ArgumentNullException(nameof(connectionInfo));
+                throw new ArgumentNullException(nameof(factory));
             }
+
+            locker = new ReaderWriterLockSlim();
 
             var repository = factory.GetInstance<IRepository>();
             if (repository == null)
@@ -41,11 +43,14 @@ namespace Storage.Service
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            tcpListener = new TcpListener(connectionInfo);
-            tcpListener.Start();
+            receiver = factory.GetInstance<IReceiver>();
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+
+            receiver.Update += Update;
            
-            locker = new ReaderWriterLockSlim();
-
             locker.EnterReadLock();
             try
             {
@@ -59,43 +64,6 @@ namespace Storage.Service
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
         }
 
-        public Slave(IPEndPoint connectionInfo, IRepository repository, ILogger logger)
-        {
-            if (connectionInfo == null)
-            {
-                throw new ArgumentNullException(nameof(connectionInfo));
-            }
-
-            if (repository == null)
-            {
-                throw new ArgumentNullException(nameof(repository));
-            }
-
-            if (logger == null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            tcpListener = new TcpListener(connectionInfo);
-            tcpListener.Start();
-            this.logger = logger;
-            locker = new ReaderWriterLockSlim();
-
-            locker.EnterReadLock();
-            try
-            {
-                users = repository.Load().Users ?? new List<User>();
-            }
-            finally
-            {
-                locker.ExitReadLock();
-            }
-
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
-        }
-
-        private delegate void Callback<in T>(T parametr);
-        
         public void Delete(int id)
         {
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
@@ -129,56 +97,12 @@ namespace Storage.Service
             return result;
         }
 
-        public async void ListenForUpdate()
+        public void ListenForUpdate()
         {
-           try
-           {
-               while (true)
-               {
-                   await ProcessTcp<Message>(Update);
-               }
-           }
-           finally 
-           {
-               tcpListener.Stop();
-           }
+            receiver.Receive();
         }
 
-        private async Task ProcessTcp<T>(Callback<T> callback)
-        {
-            int dataSize = 1024;
-            var formatter = new BinaryFormatter();
-            byte[] data = new byte[dataSize];
-            using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
-            {
-                using (var stream = tcpClient.GetStream())
-                using (var memStream = new MemoryStream())
-                {
-                    int count;
-                    do
-                    {
-                        count = await stream.ReadAsync(data, 0, data.Length);
-                        memStream.Write(data, 0, count);
-                    }
-                    while (count >= dataSize);
-
-                    memStream.Position = 0;
-                    try
-                    {
-                        logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to {callback.Method.Name}!");
-
-                        var message = (T)formatter.Deserialize(memStream);
-                        callback(message);
-                    }
-                    catch 
-                    {
-                        throw new InvalidDataException("Unable to deserialize.");
-                    }                  
-                }
-            }
-        }
-
-        private void Update(Message message)
+        private void Update(object sender, UserEventArgs message)
         {
             locker.EnterWriteLock();
             try

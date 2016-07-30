@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="MasterTests.cs" />
     <Compile Include="SlaveTests.cs" />
-    <Compile Include="TestCollection.cs" />
+    <Compile Include="TestInfo.cs" />
     <Compile Include="UserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

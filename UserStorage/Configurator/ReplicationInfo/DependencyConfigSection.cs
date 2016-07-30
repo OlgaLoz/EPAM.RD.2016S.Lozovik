@@ -15,5 +15,11 @@ namespace Configurator.ReplicationInfo
 
         [ConfigurationProperty("logger")]
         public TypeInfo Logger => (TypeInfo)base["logger"];
+
+        [ConfigurationProperty("sender")]
+        public TypeInfo Sender => (TypeInfo)base["sender"];
+
+        [ConfigurationProperty("receiver")]
+        public TypeInfo Receiver => (TypeInfo)base["receiver"];
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Logger;
 
 namespace Configurator.Logging
 {

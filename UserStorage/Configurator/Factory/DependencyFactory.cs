@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Reflection;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Factory;
 
 namespace Configurator.Factory
 {
     [Serializable]
     public class DependencyFactory : IFactory 
     {
-        private readonly Dictionary<Type, string> types;
+        private readonly Dictionary<Type, InstanceInfo> types;
 
-        public DependencyFactory(Dictionary<Type, string> types)
+        public DependencyFactory(Dictionary<Type, InstanceInfo> types)
         {
             if (types == null)
             {
@@ -23,22 +24,22 @@ namespace Configurator.Factory
 
         public T GetInstance<T>()
         {
-            var strType = types[typeof(T)];
-            if (string.IsNullOrEmpty(strType))
+            var typeInfo = types[typeof(T)];
+            if (string.IsNullOrEmpty(typeInfo.Type))
             {
                 throw new InvalidOperationException($"There is no {nameof(T)} in factory.");
             }
 
-            var type = Type.GetType(strType);
-            if (type?.GetInterface(typeof(T).Name) == null || type.GetConstructor(new Type[] { }) == null)
+            var type = Type.GetType(typeInfo.Type);
+            if (type?.GetInterface(typeof(T).Name) == null || type.GetConstructor(typeInfo.Params.Select(t => t?.GetType()).ToArray()) == null)
             {
-                throw new ConfigurationErrorsException($"Unable to create instance of {strType}.");
+                throw new ConfigurationErrorsException($"Unable to create instance of {typeInfo}.");
             }
 
-            T instance = (T)Activator.CreateInstance(type);
-            if (instance?.GetType().GetCustomAttribute<SerializableAttribute>() == null)
+            T instance = (T)Activator.CreateInstance(type, typeInfo.Params);
+            if (instance == null)
             {
-                throw new ConfigurationErrorsException($"Unable to create instance of {strType}. Make it serializable.");
+                throw new ConfigurationErrorsException($"Unable to create instance of {typeInfo}.");
             }
 
             return instance;

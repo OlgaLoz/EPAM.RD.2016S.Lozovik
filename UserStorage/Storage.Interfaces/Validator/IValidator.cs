@@ -1,6 +1,6 @@
 ﻿using Storage.Interfaces.Entities.UserInfo;
 
-namespace Storage.Interfaces.Interfaces
+namespace Storage.Interfaces.Validator
 {
     public interface IValidator
     {

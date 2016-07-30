@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Storage.Interfaces.Entities.UserInfo;
 
-namespace Storage.Interfaces.Interfaces
+namespace Storage.Interfaces.Services
 {
     public interface IUserService 
     {

@@ -1,4 +1,4 @@
-﻿namespace Storage.Interfaces.Interfaces
+﻿namespace Storage.Interfaces.Factory
 {
     public interface IFactory
     {

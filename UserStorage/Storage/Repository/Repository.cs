@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Storage.Interfaces.Entities.ServiceState;
 using Storage.Interfaces.Entities.UserInfo;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Repository;
 
 namespace Storage.Repository
 {

@@ -1,6 +1,6 @@
 ﻿using Storage.Interfaces.Entities.ServiceState;
 
-namespace Storage.Interfaces.Interfaces
+namespace Storage.Interfaces.Repository
 {
     public interface IRepository
     {

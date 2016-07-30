@@ -1,11 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using Configurator.Factory;
+using Configurator.Logging;
 using Storage.Interfaces.Entities.UserInfo;
+using Storage.Interfaces.Generator;
+using Storage.Interfaces.Logger;
+using Storage.Interfaces.Network;
+using Storage.Interfaces.Repository;
+using Storage.Interfaces.Services;
+using Storage.Interfaces.Validator;
+using Storage.Network;
+using Storage.Validator;
 
 namespace Storage.Tests
 {
-    public static class TestCollection
+    public static class TestInfo
     {
+        private static Dictionary<Type, InstanceInfo> typesSingle = new Dictionary<Type, InstanceInfo>
+        {
+            { typeof(IGenerator), new InstanceInfo { Type = typeof(FibbonacciGenerator.FibonacciGenerator).AssemblyQualifiedName } },
+            { typeof(IRepository), new InstanceInfo { Type = typeof(Repository.Repository).AssemblyQualifiedName } },
+            { typeof(IValidator), new InstanceInfo { Type = typeof(UserValidator).AssemblyQualifiedName } },
+            { typeof(ILogger), new InstanceInfo { Type = typeof(DefaultLogger).AssemblyQualifiedName } },
+            { typeof(ISender), new InstanceInfo { Type = typeof(Sender).AssemblyQualifiedName, Params = new object[] { new List<IPEndPoint> { } } } },
+            { typeof(IReceiver), new InstanceInfo { Type = typeof(Receiver).AssemblyQualifiedName, Params = new object[] { new IPEndPoint(IPAddress.None, 10001) } } }
+        };
+
+        public static DependencyFactory Factory => new DependencyFactory(typesSingle);
+        
         public static List<User> Users { get; } = new List<User>
         {
             new User

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Storage.Interfaces.Interfaces
+namespace Storage.Interfaces.Logger
 {
     public interface ILogger
     {

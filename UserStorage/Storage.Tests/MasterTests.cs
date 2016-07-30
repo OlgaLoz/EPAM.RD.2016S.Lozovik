@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Net;
-using Configurator.Logging;
-using FibbonacciGenerator;
+using System.Linq;
+using Configurator.Factory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Storage.Interfaces.Entities.UserInfo;
 using Storage.Service;
-using Storage.Validator;
 
 namespace Storage.Tests
 {
@@ -13,37 +12,19 @@ namespace Storage.Tests
     {
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Ctor_NullValidator_ArgumentNullException()
+        public void Ctor_NullFactory_ArgumentNullException()
         {
-            var master = new Master(null, new Repository.Repository(), new FibonacciGenerator(), new IPEndPoint[] { }, new DefaultLogger());
+            var master = new Master(null);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Ctor_NullRepository_ArgumentNullException()
+        public void Add_UserAdded()
         {
-            var master = new Master(new UserValidator(), null, new FibonacciGenerator(), new IPEndPoint[] { }, new DefaultLogger());
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Ctor_NullGenerator_ArgumentNullException()
-        {
-            var master = new Master(new UserValidator(), new Repository.Repository(), null, new IPEndPoint[] { }, new DefaultLogger());
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Ctor_NullConnectionInfo_ArgumentNullException()
-        {
-            var master = new Master(new UserValidator(), new Repository.Repository(), new FibonacciGenerator(), null, new DefaultLogger());
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Ctor_NullLogger_ArgumentNullException()
-        {
-            var master = new Master(new UserValidator(), new Repository.Repository(), new FibonacciGenerator(), new IPEndPoint[] { }, null);
+            var master = new Master(TestInfo.Factory);
+            int id = master.Add(TestInfo.Users[0]);
+            var result = master.GetAll();
+            Assert.AreEqual(1, id);
+            Assert.IsTrue(TestInfo.Users[0].Equals(result.SingleOrDefault(u => u.PersonalId == id)));
         }
     }
 }

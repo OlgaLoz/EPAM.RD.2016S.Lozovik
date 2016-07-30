@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Generator;
 
 namespace FibbonacciGenerator
 {

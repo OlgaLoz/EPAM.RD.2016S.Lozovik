@@ -7,7 +7,12 @@ using System.Net;
 using System.Reflection;
 using Configurator.Factory;
 using Configurator.ReplicationInfo;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Generator;
+using Storage.Interfaces.Logger;
+using Storage.Interfaces.Network;
+using Storage.Interfaces.Repository;
+using Storage.Interfaces.Services;
+using Storage.Interfaces.Validator;
 
 namespace Configurator
 {
@@ -24,6 +29,12 @@ namespace Configurator
                 throw new NullReferenceException("Unable to read section from config.");
             }
 
+            var dependencySection = (DependencyConfigSection)ConfigurationManager.GetSection("Dependencies");
+            if (dependencySection == null)
+            {
+                throw new NullReferenceException("Unable to read section from config.");
+            }
+
             var services = servicesSection.ServiceItems.Cast<ServiceDescription>().ToList();
             var masterCollection = services.Where(serviceItem => serviceItem.IsMaster).ToList();
             var slaveCollection = services.Where(serviceItem => !serviceItem.IsMaster).ToList();
@@ -31,24 +42,23 @@ namespace Configurator
             int i = 0;
             foreach (var serviceDescription in slaveCollection)
             {
-                var slave = CreateSlave(serviceDescription, ++i);
+                var slave = CreateSlave(serviceDescription, dependencySection, ++i);
                 slaveServices.Add(slave);
-                slave.ListenForUpdate();
+                (slave as IListener)?.ListenForUpdate();
             }
 
             var slaveConnectionInfo = slaveCollection.Select(s => new IPEndPoint(IPAddress.Parse(s.IpAddress), s.Port)).ToList();
-            masterService = CreateMaster(masterCollection[0], slaveConnectionInfo);
-            ((IMaster)masterService).Load();
+            masterService = CreateMaster(masterCollection[0], dependencySection, slaveConnectionInfo);
+            (masterService as ILoader)?.Load();
             return new Proxy(masterService, slaveServices);           
         }
 
         public void End()
         {
-            var master = masterService as IMaster;
-            master?.Save();
+            (masterService as ILoader)?.Save();
         }
 
-        private IMaster CreateMaster(ServiceDescription masterDescription, IEnumerable<IPEndPoint> slaveConnectionInfo)
+        private IUserService CreateMaster(ServiceDescription masterDescription, DependencyConfigSection servicesSection, IEnumerable<IPEndPoint> slaves)
         {
             AppDomain domain = AppDomain.CreateDomain("master");
 
@@ -58,13 +68,23 @@ namespace Configurator
                 throw new ConfigurationErrorsException("Invalid type of master service.");
             }
 
-            var master = (IMaster)domain.CreateInstanceAndUnwrap(
+            Dictionary<Type, InstanceInfo> types = new Dictionary<Type, InstanceInfo>
+            {
+                { typeof(IGenerator), new InstanceInfo { Type = servicesSection.Generator.Type } },
+                { typeof(IValidator), new InstanceInfo { Type = servicesSection.Validator.Type } },
+                { typeof(IRepository), new InstanceInfo { Type = servicesSection.Repository.Type } },
+                { typeof(ILogger), new InstanceInfo { Type = servicesSection.Logger.Type } },
+                { typeof(ISender), new InstanceInfo { Type = servicesSection.Sender.Type, Params = new object[] { slaves } } }
+            };
+
+            var factory = new DependencyFactory(types);
+            var master = (IUserService)domain.CreateInstanceAndUnwrap(
                 type.Assembly.FullName,
                 type.FullName,
                 true,
                 BindingFlags.CreateInstance,
                 null,
-                new object[] { CreateFactory(), slaveConnectionInfo },
+                new object[] { factory, slaves },
                 CultureInfo.InvariantCulture,
                 null);
 
@@ -76,7 +96,7 @@ namespace Configurator
             return master;
         }
 
-        private ISlave CreateSlave(ServiceDescription slaveDescription, int slaveIndex)
+        private IUserService CreateSlave(ServiceDescription slaveDescription, DependencyConfigSection servicesSection, int slaveIndex)
         {
             AppDomain domain = AppDomain.CreateDomain($"slave#{slaveIndex}");
 
@@ -86,13 +106,21 @@ namespace Configurator
                 throw new ConfigurationErrorsException("Invalid type of slave service.");
             }
 
-            var slave = (ISlave)domain.CreateInstanceAndUnwrap(
+            Dictionary<Type, InstanceInfo> types = new Dictionary<Type, InstanceInfo>
+            {
+                { typeof(IRepository), new InstanceInfo { Type = servicesSection.Repository.Type } },
+                { typeof(ILogger), new InstanceInfo { Type = servicesSection.Logger.Type } },
+                { typeof(IReceiver), new InstanceInfo { Type = servicesSection.Receiver.Type, Params = new object[] { new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress), slaveDescription.Port) } } }
+            };
+
+            var factory = new DependencyFactory(types);
+            var slave = (IUserService)domain.CreateInstanceAndUnwrap(
                 type.Assembly.FullName,
                 type.FullName,
                 true,
                 BindingFlags.CreateInstance,
                 null,
-                new object[] { new IPEndPoint(IPAddress.Parse(slaveDescription.IpAddress), slaveDescription.Port), CreateFactory() },
+                new object[] { factory },
                 CultureInfo.InvariantCulture,
                 null);
 
@@ -103,24 +131,5 @@ namespace Configurator
 
             return slave;
         }
-
-        private IFactory CreateFactory()
-        {
-            var servicesSection = (DependencyConfigSection)ConfigurationManager.GetSection("Dependencies");
-
-            if (servicesSection == null)
-            {
-                throw new NullReferenceException("Unable to read section from config.");
-            }
-
-            Dictionary<Type, string> types = new Dictionary<Type, string>
-            {
-                { typeof(IGenerator), servicesSection.Generator.Type },
-                { typeof(IValidator), servicesSection.Validator.Type },
-                { typeof(IRepository), servicesSection.Repository.Type },
-                { typeof(ILogger), servicesSection.Logger.Type }
-            };
-            return new DependencyFactory(types);
-        } 
     }
 }

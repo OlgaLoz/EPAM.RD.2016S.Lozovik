@@ -1,6 +1,6 @@
 ﻿using System;
 using Storage.Interfaces.Entities.UserInfo;
-using Storage.Interfaces.Interfaces;
+using Storage.Interfaces.Validator;
 
 namespace Storage.Validator
 {
