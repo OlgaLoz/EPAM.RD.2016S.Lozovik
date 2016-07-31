@@ -10,6 +10,7 @@ using Storage.Interfaces.Factory;
 using Storage.Interfaces.Logger;
 using Storage.Interfaces.Network;
 using Storage.Interfaces.Repository;
+using Storage.Interfaces.Search;
 using Storage.Interfaces.Services;
 
 namespace Storage.Service
@@ -76,16 +77,13 @@ namespace Storage.Service
             throw new AccessViolationException();
         }
 
-        public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
+        public virtual IEnumerable<int> Search(SearchCriteria<User> criteria)
         {
-            var result = users.Select(u => u.PersonalId);
+            List<int> result;
             locker.EnterReadLock();
             try
             {
-                for (int i = 0; i < criteria.Length; i++)
-                {
-                    result = result.Intersect(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId)).ToList();
-                }
+                result = users.Where(criteria.Compare).Select(u => u.PersonalId).ToList();
             }
             finally
             {

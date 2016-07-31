@@ -1,44 +1,22 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace Storage.Interfaces.Entities.UserInfo
 {
-    [Serializable]
-    public struct Visa : IXmlSerializable
+    [DataContract]
+    public struct Visa 
     {
+        [DataMember]
         public string Country { get; set; }
 
+        [DataMember]
         public DateTime Start { get; set; }
 
+        [DataMember]
         public DateTime End { get; set; }
-
-        public XmlSchema GetSchema()
-        {
-            return null;
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            reader.ReadStartElement(nameof(Visa));
-
-            Country = reader.ReadElementContentAsString();
-            Start = reader.ReadElementContentAsDateTime();
-            End = reader.ReadElementContentAsDateTime();
-
-            reader.ReadEndElement();
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteStartElement(nameof(Visa));
-
-            writer.WriteElementString(nameof(Country), Country);
-            writer.WriteElementString(nameof(Start), Start.ToString("yyyy-MM-dd"));
-            writer.WriteElementString(nameof(End), End.ToString("yyyy-MM-dd"));
-
-            writer.WriteEndElement();
-        }
     }
 }

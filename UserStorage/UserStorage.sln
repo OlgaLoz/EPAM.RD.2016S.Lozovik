@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage.Interfaces", "Stora
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfApp", "WcfApp\WcfApp.csproj", "{96ED4CA6-2270-4E33-979D-FDDA7F72164F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfLibrary", "WcfLibrary\WcfLibrary.csproj", "{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

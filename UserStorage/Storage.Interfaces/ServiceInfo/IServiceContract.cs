@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.ServiceModel;
 using Storage.Interfaces.Entities.UserInfo;
+using Storage.Interfaces.Search;
 
 namespace Storage.Interfaces.ServiceInfo
 {
@@ -12,7 +14,7 @@ namespace Storage.Interfaces.ServiceInfo
         int Add(User user);
 
         [OperationContract]
-        IEnumerable<int> Search(Predicate<User>[] criteria);
+        List<int> Search(SearchCriteria<User> criteria);
 
         [OperationContract]
         void Delete(int id);

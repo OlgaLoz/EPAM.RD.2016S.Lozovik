@@ -14,7 +14,7 @@ namespace Storage.Tests
 
         public ServiceState Load()
         {
-            return new ServiceState {CurrentId = 0, Users = TestInfo.Users};
+            return new ServiceState { CurrentId = 0, Users = TestInfo.Users };
         }
     }
 }

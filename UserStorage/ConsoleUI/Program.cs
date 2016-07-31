@@ -16,8 +16,8 @@ namespace ConsoleUI
         //    ms.Save();
             ms.Load();*/
              CustomConfigurator configurator = new CustomConfigurator();
-             IUserService us = configurator.Start();
-            for (int i = 0; i < 30; i++)
+             configurator.Start();
+          /*  for (int i = 0; i < 30; i++)
             {
                  us.Add(new User
                  {
@@ -29,12 +29,13 @@ namespace ConsoleUI
                              Country = "asd"
                          }
                      }
-                 });
-            }
-
-            configurator.End();
-            File.Delete("users.xml");
+                 });*/
             Console.ReadLine();
+            configurator.End();
+
+            /*    configurator.End();
+                File.Delete("users.xml");
+                Console.ReadLine();*/
         }
     }
 }

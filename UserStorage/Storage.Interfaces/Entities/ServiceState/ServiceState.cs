@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Storage.Interfaces.Entities.CustomSerialization;
+using Storage.Interfaces.Entities.CustomSerialization.Mappers;
 using Storage.Interfaces.Entities.UserInfo;
 
 namespace Storage.Interfaces.Entities.ServiceState
@@ -33,11 +35,11 @@ namespace Storage.Interfaces.Entities.ServiceState
             reader.MoveToAttribute("count");
             int count = int.Parse(reader.Value);
             reader.ReadStartElement(nameof(Users));
-            var userSer = new XmlSerializer(typeof(User));
+            var userSer = new XmlSerializer(typeof(SerializableUser));
             for (int i = 0; i < count; i++)
             {
-                var user = (User)userSer.Deserialize(reader);
-                Users.Add(user);
+                var user = (SerializableUser)userSer.Deserialize(reader);
+                Users.Add(user.ToUser());
             }
 
             reader.ReadEndElement();
@@ -53,7 +55,7 @@ namespace Storage.Interfaces.Entities.ServiceState
             writer.WriteAttributeString("count", Users.Count.ToString());
             foreach (var user in Users)
             {
-                user.WriteXml(writer);
+                user.ToSerializableUser().WriteXml(writer);
             }
 
             writer.WriteEndElement();

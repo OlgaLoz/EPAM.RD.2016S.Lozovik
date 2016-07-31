@@ -9,9 +9,9 @@ using Storage.Interfaces.Generator;
 using Storage.Interfaces.Logger;
 using Storage.Interfaces.Network;
 using Storage.Interfaces.Repository;
+using Storage.Interfaces.Search;
 using Storage.Interfaces.Validator;
 using Storage.Network;
-using Storage.Repository;
 using Storage.Validator;
 
 namespace Storage.Tests
@@ -55,7 +55,7 @@ namespace Storage.Tests
                 FirstName = "Natalia",
                 LastName = "Vladimirova",
                 DateOfBirdth = new DateTime(1995, 7, 3),
-                Gender = Gender.Male
+                Gender = Gender.Female
             },
             new User
             {

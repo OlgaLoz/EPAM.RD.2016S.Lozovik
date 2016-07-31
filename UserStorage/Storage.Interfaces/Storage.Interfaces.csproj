@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,6 +44,8 @@
   <ItemGroup>
     <Compile Include="Entities\ConnectionInfo\Message.cs" />
     <Compile Include="Entities\ConnectionInfo\Operation.cs" />
+    <Compile Include="Entities\CustomSerialization\SerializableUser.cs" />
+    <Compile Include="Entities\CustomSerialization\SerializableVisa.cs" />
     <Compile Include="Entities\ServiceState\ServiceState.cs" />
     <Compile Include="Entities\UserEventArgs\UserEventArgs.cs" />
     <Compile Include="Entities\UserEventArgs\UserMessageMapper.cs" />
@@ -54,6 +57,9 @@
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Network\IReceiver.cs" />
     <Compile Include="Network\ISender.cs" />
+    <Compile Include="Entities\CustomSerialization\Mappers\UserMappers.cs" />
+    <Compile Include="Search\SearchCriteria.cs" />
+    <Compile Include="ServiceInfo\IWcfHelper.cs" />
     <Compile Include="Services\IListener.cs" />
     <Compile Include="Services\ILoader.cs" />
     <Compile Include="Repository\IRepository.cs" />

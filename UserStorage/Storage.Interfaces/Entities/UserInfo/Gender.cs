@@ -1,7 +1,14 @@
-﻿namespace Storage.Interfaces.Entities.UserInfo
+﻿using System.Runtime.Serialization;
+using System.ServiceModel;
+
+namespace Storage.Interfaces.Entities.UserInfo
 {
+    [DataContract]
     public enum Gender
     {
-        Male, Female
+        [EnumMember]
+        Male,
+        [EnumMember]
+        Female
     }
 }

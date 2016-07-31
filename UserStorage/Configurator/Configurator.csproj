@@ -54,6 +54,10 @@
     <Compile Include="ReplicationInfo\TypeInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FibbonacciGenerator\FibbonacciGenerator.csproj">
+      <Project>{52d8e67d-0f1f-4bee-9d79-2792fab95811}</Project>
+      <Name>FibbonacciGenerator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Storage.Interfaces\Storage.Interfaces.csproj">
       <Project>{9e78219c-7cff-4073-9585-0e7f4c744413}</Project>
       <Name>Storage.Interfaces</Name>
@@ -61,6 +65,10 @@
     <ProjectReference Include="..\Storage\Storage.csproj">
       <Project>{0cf18bd4-d464-46a2-b4fe-c29dd24df1a2}</Project>
       <Name>Storage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WcfLibrary\WcfLibrary.csproj">
+      <Project>{e8fc94e0-4b5c-4c6d-a293-9fb5b6d01903}</Project>
+      <Name>WcfLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

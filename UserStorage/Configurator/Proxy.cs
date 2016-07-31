@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Storage.Interfaces.Entities.UserInfo;
+using Storage.Interfaces.Search;
 using Storage.Interfaces.Services;
 
 namespace Configurator
@@ -32,7 +33,7 @@ namespace Configurator
             return master.Add(user);
         }
 
-        public IEnumerable<int> Search(Predicate<User>[] criteria)
+        public IEnumerable<int> Search(SearchCriteria<User> criteria)
         {
             if (currentService == 0)
             {

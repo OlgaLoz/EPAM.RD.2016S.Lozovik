@@ -11,6 +11,7 @@ using Storage.Interfaces.Generator;
 using Storage.Interfaces.Logger;
 using Storage.Interfaces.Network;
 using Storage.Interfaces.Repository;
+using Storage.Interfaces.Search;
 using Storage.Interfaces.Services;
 using Storage.Interfaces.Validator;
 
@@ -116,16 +117,13 @@ namespace Storage.Service
             logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
         }
 
-        public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
+        public virtual IEnumerable<int> Search(SearchCriteria<User> criteria)
         {
-            var result = users.Select(u => u.PersonalId);
+            List<int> result;
             locker.EnterReadLock();
             try
             {
-                for (int i = 0; i < criteria.Length; i++)
-                {
-                    result = result.Intersect(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId)).ToList();
-                }
+                result = users.Where(criteria.Compare).Select(u => u.PersonalId).ToList();
             }
             finally 
             {
