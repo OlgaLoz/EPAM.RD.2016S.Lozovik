@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configurator", "Configurato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage.Interfaces", "Storage.Interfaces\Storage.Interfaces.csproj", "{9E78219C-7CFF-4073-9585-0E7F4C744413}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfApp", "WcfApp\WcfApp.csproj", "{96ED4CA6-2270-4E33-979D-FDDA7F72164F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{9E78219C-7CFF-4073-9585-0E7F4C744413}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E78219C-7CFF-4073-9585-0E7F4C744413}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E78219C-7CFF-4073-9585-0E7F4C744413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Configurator.Factory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Storage.Interfaces.Entities.UserInfo;
@@ -21,10 +22,60 @@ namespace Storage.Tests
         public void Add_UserAdded()
         {
             var master = new Master(TestInfo.Factory);
+
             int id = master.Add(TestInfo.Users[0]);
             var result = master.GetAll();
+
             Assert.AreEqual(1, id);
-            Assert.IsTrue(TestInfo.Users[0].Equals(result.SingleOrDefault(u => u.PersonalId == id)));
+            Assert.IsTrue(result.Contains(TestInfo.Users[0]));
+        }
+
+        [TestMethod]
+        public void Delete_UserDeleted()
+        {
+            var master = new Master(TestInfo.Factory);
+            master.Add(TestInfo.Users[0]);
+            int id = master.Add(TestInfo.Users[1]);
+
+            master.Delete(id);
+
+            var result = master.GetAll();
+            Assert.IsFalse(result.Contains(TestInfo.Users[1]));
+            Assert.IsTrue(result.Contains(TestInfo.Users[0]));
+        }
+
+        [TestMethod]
+        public void Search_ReturnsThree()
+        {
+            var master = new Master(TestInfo.Factory);
+            int id1 = master.Add(TestInfo.Users[0]);
+            int id2 = master.Add(TestInfo.Users[1]);
+            int id3 = master.Add(TestInfo.Users[2]);
+
+            var criteria = new Predicate<User>[] { user => user.Visas?.Length > 1 };
+            var result = master.Search(criteria).ToList();
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Contains(id3));
+            Assert.IsFalse(result.Contains(id2));
+            Assert.IsFalse(result.Contains(id1));
+        }
+
+        [TestMethod]
+        public void Search_MultiplyCriteria_ReturnsOne()
+        {
+            var master = new Master(TestInfo.Factory);
+            int id1 = master.Add(TestInfo.Users[0]);
+            int id2 = master.Add(TestInfo.Users[1]);
+            int id3 = master.Add(TestInfo.Users[2]);
+
+            var criteria = new Predicate<User>[] { user => user.Visas?.Length > 0, user => user.Gender == Gender.Male };
+            var result = master.Search(criteria).ToList();
+
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Contains(id3));
+            Assert.IsFalse(result.Contains(id2));
+            Assert.IsTrue(result.Contains(id1));
         }
     }
 }

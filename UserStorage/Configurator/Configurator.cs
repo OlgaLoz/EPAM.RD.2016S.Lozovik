@@ -78,13 +78,14 @@ namespace Configurator
             };
 
             var factory = new DependencyFactory(types);
+
             var master = (IUserService)domain.CreateInstanceAndUnwrap(
                 type.Assembly.FullName,
                 type.FullName,
                 true,
                 BindingFlags.CreateInstance,
                 null,
-                new object[] { factory, slaves },
+                new object[] { factory },
                 CultureInfo.InvariantCulture,
                 null);
 

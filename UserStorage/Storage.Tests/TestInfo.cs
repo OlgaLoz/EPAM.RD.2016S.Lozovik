@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Net;
 using Configurator.Factory;
 using Configurator.Logging;
+using FibbonacciGenerator;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Generator;
 using Storage.Interfaces.Logger;
 using Storage.Interfaces.Network;
 using Storage.Interfaces.Repository;
-using Storage.Interfaces.Services;
 using Storage.Interfaces.Validator;
 using Storage.Network;
+using Storage.Repository;
 using Storage.Validator;
 
 namespace Storage.Tests
@@ -19,8 +20,8 @@ namespace Storage.Tests
     {
         private static Dictionary<Type, InstanceInfo> typesSingle = new Dictionary<Type, InstanceInfo>
         {
-            { typeof(IGenerator), new InstanceInfo { Type = typeof(FibbonacciGenerator.FibonacciGenerator).AssemblyQualifiedName } },
-            { typeof(IRepository), new InstanceInfo { Type = typeof(Repository.Repository).AssemblyQualifiedName } },
+            { typeof(IGenerator), new InstanceInfo { Type = typeof(FibonacciGenerator).AssemblyQualifiedName } },
+            { typeof(IRepository), new InstanceInfo { Type = typeof(FakeRepository).AssemblyQualifiedName } },
             { typeof(IValidator), new InstanceInfo { Type = typeof(UserValidator).AssemblyQualifiedName } },
             { typeof(ILogger), new InstanceInfo { Type = typeof(DefaultLogger).AssemblyQualifiedName } },
             { typeof(ISender), new InstanceInfo { Type = typeof(Sender).AssemblyQualifiedName, Params = new object[] { new List<IPEndPoint> { } } } },

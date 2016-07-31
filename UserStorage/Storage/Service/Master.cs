@@ -43,22 +43,22 @@ namespace Storage.Service
             
             if (validator == null)
             {
-                throw new ArgumentNullException(nameof(validator));
+                throw new NullReferenceException(nameof(validator));
             }
 
             if (repository == null)
             {
-                throw new ArgumentNullException(nameof(repository));
+                throw new NullReferenceException(nameof(repository));
             }
 
             if (idGenerator == null)
             {
-                throw new ArgumentNullException(nameof(idGenerator));
+                throw new NullReferenceException(nameof(idGenerator));
             }
 
             if (logger == null)
             {
-                throw new ArgumentNullException(nameof(logger));
+                throw new NullReferenceException(nameof(logger));
             }
 
             locker = new ReaderWriterLockSlim();
@@ -118,13 +118,13 @@ namespace Storage.Service
 
         public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
         {
-            var result = new List<int>();
+            var result = users.Select(u => u.PersonalId);
             locker.EnterReadLock();
             try
             {
                 for (int i = 0; i < criteria.Length; i++)
                 {
-                    result.AddRange(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId));
+                    result = result.Intersect(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId)).ToList();
                 }
             }
             finally 
