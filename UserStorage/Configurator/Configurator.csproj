@@ -47,6 +47,9 @@
     <Compile Include="Logging\DefaultLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Proxy.cs" />
+    <Compile Include="ReplicationInfo\AddressCollection.cs" />
+    <Compile Include="ReplicationInfo\AddressConfigSection.cs" />
+    <Compile Include="ReplicationInfo\AddressElement.cs" />
     <Compile Include="ReplicationInfo\DependencyConfigSection.cs" />
     <Compile Include="ReplicationInfo\ServiceCollection.cs" />
     <Compile Include="ReplicationInfo\ServiceDescription.cs" />

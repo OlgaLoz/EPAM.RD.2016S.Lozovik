@@ -11,7 +11,6 @@ using Storage.Interfaces.Generator;
 using Storage.Interfaces.Logger;
 using Storage.Interfaces.Network;
 using Storage.Interfaces.Repository;
-using Storage.Interfaces.Search;
 using Storage.Interfaces.Services;
 using Storage.Interfaces.Validator;
 
@@ -90,8 +89,7 @@ namespace Storage.Service
                 locker.ExitWriteLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} add!");
-
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} add userId = {user.PersonalId}!");
             sender.Send(new Message { Operation = Operation.Add, User = user });
 
             return user.PersonalId;
@@ -114,23 +112,26 @@ namespace Storage.Service
                 locker.ExitWriteLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete userId = {id}!");
         }
 
-        public virtual IEnumerable<int> Search(SearchCriteria<User> criteria)
+        public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
         {
-            List<int> result;
+            var result = users.Select(u => u.PersonalId).ToList();
             locker.EnterReadLock();
             try
             {
-                result = users.Where(criteria.Compare).Select(u => u.PersonalId).ToList();
+                for (int i = 0; i < criteria.Length; i++)
+                {
+                    result = result.Intersect(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId)).ToList();
+                }
             }
-            finally 
+            finally
             {
                 locker.ExitReadLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search completed ; count of users: {result.Count}!");
 
             return result;
         }
@@ -147,7 +148,7 @@ namespace Storage.Service
                 locker.ExitWriteLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} save!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} save info!");
         }
 
         public void Load()
@@ -157,13 +158,14 @@ namespace Storage.Service
             {
                 var state = repository.Load();
                 users = state.Users ?? new List<User>();
+                idGenerator.LoadState(state.CurrentId);
             }
             finally
             {
                 locker.ExitWriteLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} load!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} load info!");
         }
 
         public List<User> GetAll()

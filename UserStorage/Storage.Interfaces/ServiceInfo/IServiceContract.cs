@@ -14,7 +14,7 @@ namespace Storage.Interfaces.ServiceInfo
         int Add(User user);
 
         [OperationContract]
-        List<int> Search(SearchCriteria<User> criteria);
+        List<int> Search(User criteria);
 
         [OperationContract]
         void Delete(int id);

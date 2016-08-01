@@ -13,10 +13,10 @@ namespace Storage.Interfaces.Entities.CustomSerialization.Mappers
                 LastName = inputUser.LastName,
                 DateOfBirdth = inputUser.DateOfBirdth,
                 Gender = inputUser.Gender,
-                Visas = new SerializableVisa[inputUser.Visas.Length],
+                Visas = new SerializableVisa[inputUser.Visas?.Length ?? 0],
             };
 
-            for (int i = 0; i < inputUser.Visas.Length; i++)
+            for (int i = 0; i < inputUser.Visas?.Length; i++)
             {
                 user.Visas[i] = new SerializableVisa
                 {
@@ -38,10 +38,10 @@ namespace Storage.Interfaces.Entities.CustomSerialization.Mappers
                 LastName = inputUser.LastName,
                 DateOfBirdth = inputUser.DateOfBirdth,
                 Gender = inputUser.Gender,
-                Visas = new Visa[inputUser.Visas.Length],
+                Visas = new Visa[inputUser.Visas?.Length ?? 0],
             };
 
-            for (int i = 0; i < inputUser.Visas.Length; i++)
+            for (int i = 0; i < inputUser.Visas?.Length; i++)
             {
                 user.Visas[i] = new Visa
                 {

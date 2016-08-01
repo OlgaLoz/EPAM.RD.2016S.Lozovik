@@ -2,7 +2,6 @@
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Storage.Interfaces.Entities.UserInfo;
 
 namespace Storage.Interfaces.Entities.CustomSerialization
 {

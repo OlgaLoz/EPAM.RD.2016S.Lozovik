@@ -47,9 +47,12 @@ namespace Storage.Interfaces.Entities.CustomSerialization
                 Visas[i] = visa;
             }
 
-            reader.ReadEndElement();
+            if (Visas?.Length != 0)
+            {
+                  reader.ReadEndElement();
+            }
 
-      ////      reader.ReadEndElement();
+            reader.ReadEndElement();
         }
 
         public void WriteXml(XmlWriter writer)

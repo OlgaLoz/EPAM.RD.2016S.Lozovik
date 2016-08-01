@@ -9,7 +9,7 @@ namespace Storage.Interfaces.Services
     {
         int Add(User user);
 
-        IEnumerable<int> Search(SearchCriteria<User> criteria);
+        IEnumerable<int> Search(Predicate<User>[] criteria);
 
         void Delete(int id);
     }

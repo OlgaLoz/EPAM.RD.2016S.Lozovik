@@ -45,6 +45,23 @@ namespace Storage.Tests
         }
 
         [TestMethod]
+        public void Search_ReturnsThree()
+        {
+            var master = new Master(TestInfo.Factory);
+            int id1 = master.Add(TestInfo.Users[0]);
+            int id2 = master.Add(TestInfo.Users[1]);
+            int id3 = master.Add(TestInfo.Users[2]);
+
+            var criteria = new Predicate<User>[] { user => user.Visas?.Length > 1 };
+            var result = master.Search(criteria).ToList();
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Contains(id3));
+            Assert.IsFalse(result.Contains(id2));
+            Assert.IsFalse(result.Contains(id1));
+        }
+
+        [TestMethod]
         public void Search_MultiplyCriteria_ReturnsOne()
         {
             var master = new Master(TestInfo.Factory);
@@ -52,12 +69,13 @@ namespace Storage.Tests
             int id2 = master.Add(TestInfo.Users[1]);
             int id3 = master.Add(TestInfo.Users[2]);
 
-            var result = master.Search(new MaleCriteria()).ToList();
+            var criteria = new Predicate<User>[] { user => user.Visas?.Length > 0, user => user.Gender == Gender.Male };
+            var result = master.Search(criteria).ToList();
 
             Assert.IsNotNull(result);
             Assert.IsFalse(result.Contains(id3));
             Assert.IsFalse(result.Contains(id2));
             Assert.IsTrue(result.Contains(id1));
-        }
+         }
     }
 }

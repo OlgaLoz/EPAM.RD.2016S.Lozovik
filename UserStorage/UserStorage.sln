@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FibbonacciGenerator", "FibbonacciGenerator\FibbonacciGenerator.csproj", "{52D8E67D-0F1F-4BEE-9D79-2792FAB95811}"
 EndProject
@@ -17,9 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configurator", "Configurato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage.Interfaces", "Storage.Interfaces\Storage.Interfaces.csproj", "{9E78219C-7CFF-4073-9585-0E7F4C744413}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfApp", "WcfApp\WcfApp.csproj", "{96ED4CA6-2270-4E33-979D-FDDA7F72164F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfLibrary", "WcfLibrary\WcfLibrary.csproj", "{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfClient", "WcfClient\WcfClient.csproj", "{D5AB9966-945F-48EE-8E53-9279DCD9838F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,14 +55,14 @@ Global
 		{9E78219C-7CFF-4073-9585-0E7F4C744413}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E78219C-7CFF-4073-9585-0E7F4C744413}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E78219C-7CFF-4073-9585-0E7F4C744413}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96ED4CA6-2270-4E33-979D-FDDA7F72164F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5AB9966-945F-48EE-8E53-9279DCD9838F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5AB9966-945F-48EE-8E53-9279DCD9838F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5AB9966-945F-48EE-8E53-9279DCD9838F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5AB9966-945F-48EE-8E53-9279DCD9838F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

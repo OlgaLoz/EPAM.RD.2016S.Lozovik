@@ -10,7 +10,6 @@ using Storage.Interfaces.Factory;
 using Storage.Interfaces.Logger;
 using Storage.Interfaces.Network;
 using Storage.Interfaces.Repository;
-using Storage.Interfaces.Search;
 using Storage.Interfaces.Services;
 
 namespace Storage.Service
@@ -56,47 +55,51 @@ namespace Storage.Service
             try
             {
                 users = repository.Load().Users ?? new List<User>();
+                logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} load info!");
             }
             finally
             {
                 locker.ExitReadLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} create completed!");
         }
 
         public void Delete(int id)
         {
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} delete!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} try to delete!");
             throw new AccessViolationException();
         }
 
         public int Add(User user)
         {
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} add!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} try to add!");
             throw new AccessViolationException();
         }
 
-        public virtual IEnumerable<int> Search(SearchCriteria<User> criteria)
+        public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
         {
-            List<int> result;
+            var result = users.Select(u => u.PersonalId).ToList();
             locker.EnterReadLock();
             try
             {
-                result = users.Where(criteria.Compare).Select(u => u.PersonalId).ToList();
+                for (int i = 0; i < criteria.Length; i++)
+                {
+                    result = result.Intersect(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId)).ToList();
+                }
             }
             finally
             {
                 locker.ExitReadLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search!");
-
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search completed; count of users: {result.Count}!");
             return result;
         }
 
         public void ListenForUpdate()
         {
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} start listen for messages!");
             receiver.Receive();
         }
 
@@ -109,14 +112,14 @@ namespace Storage.Service
                 {
                     case Operation.Add:
                         users.Add(message.User);
-                        logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to add; count:{users.Count}!");
+                        logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to add; userId={message.User.PersonalId}!");
                         break;
                     case Operation.Delete:
                         var userToRemove = users.FirstOrDefault(user => user.PersonalId == message.User.PersonalId);
                         if (userToRemove != null)
                         {
                             users.Remove(userToRemove);
-                            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to remove; count:{users.Count}!");
+                            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} connected to remove; userId={message.User.PersonalId}!");
                         }
 
                         break;

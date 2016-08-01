@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel;
 using Storage.Interfaces.Entities.UserInfo;
 using Storage.Interfaces.Search;
@@ -28,9 +29,9 @@ namespace WcfLibrary
             return userService.Add(user);
         }
 
-        public List<int> Search(SearchCriteria<User> criteria)
+        public List<int> Search(User criteria)
         {
-            throw new NotImplementedException();
+            return userService.Search(criteria.ConvertToPredicate()).ToList();
         }
 
         public void Delete(int id)

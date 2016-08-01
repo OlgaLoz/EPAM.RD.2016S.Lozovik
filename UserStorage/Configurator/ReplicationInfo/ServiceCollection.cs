@@ -2,22 +2,19 @@
 
 namespace Configurator.ReplicationInfo
 {
-    public class ServiceCollection
+    [ConfigurationCollection(typeof(ServiceDescription), AddItemName = "add")]
+    public class ServicesCollection : ConfigurationElementCollection
     {
-        [ConfigurationCollection(typeof(ServiceDescription), AddItemName = "add")]
-        public class ServicesCollection : ConfigurationElementCollection
+        public ServiceDescription this[int index] => (ServiceDescription)BaseGet(index);
+
+        protected override ConfigurationElement CreateNewElement()
         {
-            public ServiceDescription this[int index] => (ServiceDescription)BaseGet(index);
+            return new ServiceDescription();
+        }
 
-            protected override ConfigurationElement CreateNewElement()
-            {
-                return new ServiceDescription();
-            }
-
-            protected override object GetElementKey(ConfigurationElement element)
-            {
-                return ((ServiceDescription)element).Port;
-            }
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            return ((ServiceDescription)element).Port;
         }
     }
 }

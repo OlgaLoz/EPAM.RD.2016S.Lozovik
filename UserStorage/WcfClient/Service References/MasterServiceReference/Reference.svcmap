@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="06da76de-37e8-4a52-88a1-76e32cee132f" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:11000/master" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="master.xsd" MetadataType="Schema" ID="6486afe5-0c15-4d26-b8b6-9b4c35b0e7bc" SourceId="1" SourceUrl="http://localhost:11000/master?xsd=xsd1" />
+    <MetadataFile FileName="master1.xsd" MetadataType="Schema" ID="0caad502-ee8b-4c2f-9935-1b0ed129b4b8" SourceId="1" SourceUrl="http://localhost:11000/master?xsd=xsd0" />
+    <MetadataFile FileName="master2.xsd" MetadataType="Schema" ID="acf7ade1-7e0d-4a65-9317-eac337123c1a" SourceId="1" SourceUrl="http://localhost:11000/master?xsd=xsd3" />
+    <MetadataFile FileName="master3.xsd" MetadataType="Schema" ID="d9ca2fcc-3bad-48b3-9262-0908afb2f25b" SourceId="1" SourceUrl="http://localhost:11000/master?xsd=xsd2" />
+    <MetadataFile FileName="WcfService.wsdl" MetadataType="Wsdl" ID="6bfd1ae2-2d0d-4405-9b2d-0fda60ca1496" SourceId="1" SourceUrl="http://localhost:11000/master?wsdl" />
+    <MetadataFile FileName="master.disco" MetadataType="Disco" ID="b2835867-ba54-4914-95f7-5c75e5485b7e" SourceId="1" SourceUrl="http://localhost:11000/master?disco" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

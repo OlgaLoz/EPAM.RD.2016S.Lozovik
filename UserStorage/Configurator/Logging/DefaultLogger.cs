@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Storage.Interfaces.Logger;
 
 namespace Configurator.Logging
@@ -9,6 +10,7 @@ namespace Configurator.Logging
     {
         private readonly BooleanSwitch traceSwitch;
         private readonly TraceSource traceSource;
+        private readonly Mutex mutex = new Mutex(false, "loggingMutex");
 
         public DefaultLogger()
         {
@@ -20,7 +22,9 @@ namespace Configurator.Logging
         {
             if (traceSwitch.Enabled)
             {
+                mutex.WaitOne();
                 traceSource.TraceEvent(type, 0, message);
+                mutex.ReleaseMutex();
             }
         }
     }

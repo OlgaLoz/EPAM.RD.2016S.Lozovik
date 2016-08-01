@@ -44,7 +44,6 @@
   <ItemGroup>
     <Compile Include="Network\Receiver.cs" />
     <Compile Include="Network\Sender.cs" />
-    <Compile Include="Service\UserService.cs" />
     <Compile Include="Repository\Repository.cs" />
     <Compile Include="Service\Master.cs" />
     <Compile Include="Service\Slave.cs" />

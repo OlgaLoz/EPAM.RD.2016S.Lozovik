@@ -52,7 +52,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="FakeRepository.cs" />
-    <Compile Include="MaleCriteria.cs" />
     <Compile Include="MasterTests.cs" />
     <Compile Include="SlaveTests.cs" />
     <Compile Include="TestInfo.cs" />

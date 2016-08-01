@@ -39,7 +39,7 @@ namespace Storage.Interfaces.Entities.ServiceState
             for (int i = 0; i < count; i++)
             {
                 var user = (SerializableUser)userSer.Deserialize(reader);
-                Users.Add(user.ToUser());
+                Users.Add(user?.ToUser());
             }
 
             reader.ReadEndElement();
@@ -55,7 +55,7 @@ namespace Storage.Interfaces.Entities.ServiceState
             writer.WriteAttributeString("count", Users.Count.ToString());
             foreach (var user in Users)
             {
-                user.ToSerializableUser().WriteXml(writer);
+                user?.ToSerializableUser().WriteXml(writer);
             }
 
             writer.WriteEndElement();

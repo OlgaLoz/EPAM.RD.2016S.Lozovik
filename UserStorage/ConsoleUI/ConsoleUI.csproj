@@ -68,6 +68,10 @@
       <Project>{0cf18bd4-d464-46a2-b4fe-c29dd24df1a2}</Project>
       <Name>Storage</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WcfLibrary\WcfLibrary.csproj">
+      <Project>{e8fc94e0-4b5c-4c6d-a293-9fb5b6d01903}</Project>
+      <Name>WcfLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

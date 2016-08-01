@@ -58,7 +58,7 @@
     <Compile Include="Network\IReceiver.cs" />
     <Compile Include="Network\ISender.cs" />
     <Compile Include="Entities\CustomSerialization\Mappers\UserMappers.cs" />
-    <Compile Include="Search\SearchCriteria.cs" />
+    <Compile Include="Search\SearchExtention.cs" />
     <Compile Include="ServiceInfo\IWcfHelper.cs" />
     <Compile Include="Services\IListener.cs" />
     <Compile Include="Services\ILoader.cs" />

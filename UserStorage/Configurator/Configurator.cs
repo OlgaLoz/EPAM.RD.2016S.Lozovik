@@ -38,7 +38,6 @@ namespace Configurator
             }
 
             var services = servicesSection.ServiceItems.Cast<ServiceDescription>().ToList();
-            var masterCollection = services.Where(serviceItem => serviceItem.IsMaster).ToList();
             var slaveCollection = services.Where(serviceItem => !serviceItem.IsMaster).ToList();
 
             foreach (var serviceDescription in slaveCollection)
@@ -53,22 +52,27 @@ namespace Configurator
                 slaveServices.Add(slave);
             }
 
-            var slaveConnectionInfo = slaveCollection.Select(s => new IPEndPoint(IPAddress.Parse(s.IpAddress), s.Port)).ToList();
-            Dictionary<Type, InstanceInfo> types = new Dictionary<Type, InstanceInfo>
+            var masterCollection = services.Where(serviceItem => serviceItem.IsMaster).ToList();
+
+            if (masterCollection.Count == 1)
             {
-                { typeof(IGenerator), new InstanceInfo { Type = dependencySection.Generator.Type } },
-                { typeof(IValidator), new InstanceInfo { Type = dependencySection.Validator.Type } },
-                { typeof(IRepository), new InstanceInfo { Type = dependencySection.Repository.Type } },
-                { typeof(ILogger), new InstanceInfo { Type = dependencySection.Logger.Type } },
-                { typeof(ISender), new InstanceInfo { Type = dependencySection.Sender.Type, Params = new object[] { slaveConnectionInfo } } }
-            };
-            masterService = CreateService(masterCollection[0], new DependencyFactory(types));                   
-         ////   return new Proxy(masterService, slaveServices);                
+                var slaveSection = (AddressConfigSection)ConfigurationManager.GetSection("SlaveAddresses");
+                var slaveConnectionInfo = slaveSection.ServiceItems.Cast<AddressElement>().Select(s => new IPEndPoint(IPAddress.Parse(s.IpAddress), s.Port)).ToList();
+                Dictionary<Type, InstanceInfo> types = new Dictionary<Type, InstanceInfo>
+                {
+                    { typeof(IGenerator), new InstanceInfo { Type = dependencySection.Generator.Type } },
+                    { typeof(IValidator), new InstanceInfo { Type = dependencySection.Validator.Type } },
+                    { typeof(IRepository), new InstanceInfo { Type = dependencySection.Repository.Type } },
+                    { typeof(ILogger), new InstanceInfo { Type = dependencySection.Logger.Type } },
+                    { typeof(ISender), new InstanceInfo { Type = dependencySection.Sender.Type, Params = new object[] { slaveConnectionInfo } } }
+                };
+                masterService = CreateService(masterCollection[0], new DependencyFactory(types));
+            }
         }
 
         public void End()
         {
-            masterService.Close();
+            masterService?.Close();
             foreach (var slaveService in slaveServices)
             {
                 slaveService.Close();

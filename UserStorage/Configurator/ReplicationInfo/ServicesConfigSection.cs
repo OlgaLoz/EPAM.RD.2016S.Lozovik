@@ -5,6 +5,6 @@ namespace Configurator.ReplicationInfo
     public class ServicesConfigSection : ConfigurationSection
     {
         [ConfigurationProperty("Services")]
-        public ServiceCollection.ServicesCollection ServiceItems => (ServiceCollection.ServicesCollection)base["Services"];
+        public ServicesCollection ServiceItems => (ServicesCollection)base["Services"];
     }
 }
