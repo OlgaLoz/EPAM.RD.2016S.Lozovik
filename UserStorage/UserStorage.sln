@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FibbonacciGenerator", "FibbonacciGenerator\FibbonacciGenerator.csproj", "{52D8E67D-0F1F-4BEE-9D79-2792FAB95811}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfLibrary", "WcfLibrary\WcfLibrary.csproj", "{E8FC94E0-4B5C-4C6D-A293-9FB5B6D01903}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfClient", "WcfClient\WcfClient.csproj", "{D5AB9966-945F-48EE-8E53-9279DCD9838F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiThreadExample", "MultiThreadExample\MultiThreadExample.csproj", "{1152EFCE-5414-464F-B024-F91FED78F4C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{D5AB9966-945F-48EE-8E53-9279DCD9838F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5AB9966-945F-48EE-8E53-9279DCD9838F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5AB9966-945F-48EE-8E53-9279DCD9838F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1152EFCE-5414-464F-B024-F91FED78F4C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1152EFCE-5414-464F-B024-F91FED78F4C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1152EFCE-5414-464F-B024-F91FED78F4C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1152EFCE-5414-464F-B024-F91FED78F4C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -79,10 +79,11 @@ namespace Storage.Service
 
         public virtual IEnumerable<int> Search(Predicate<User>[] criteria)
         {
-            var result = users.Select(u => u.PersonalId).ToList();
+            List<int> result;
             locker.EnterReadLock();
             try
             {
+                result = users.Select(u => u.PersonalId).ToList();
                 for (int i = 0; i < criteria.Length; i++)
                 {
                     result = result.Intersect(users.ToList().FindAll(criteria[i]).Select(user => user.PersonalId)).ToList();
@@ -93,7 +94,8 @@ namespace Storage.Service
                 locker.ExitReadLock();
             }
 
-            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search completed; count of users: {result.Count}!");
+            logger.Log(TraceEventType.Information, $"{AppDomain.CurrentDomain.FriendlyName} search completed ; count of users: {result.Count}!");
+
             return result;
         }
 
